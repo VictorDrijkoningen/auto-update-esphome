@@ -1,5 +1,6 @@
 FROM python:3.8-slim-buster
 WORKDIR /app
-COPY . .
-CMD ["python3", "main.py"]
-EXPOSE 3000
+COPY ./* .
+run pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+CMD ["python3", "-u", "main.py"]
