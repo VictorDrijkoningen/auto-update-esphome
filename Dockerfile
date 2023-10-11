@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:slim
 WORKDIR /app
 COPY ./* .
 run pip install --no-cache-dir --upgrade pip && \
