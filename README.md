@@ -6,5 +6,5 @@ auto update esphome devices
 2. Spin up the dockercontainer with the correct env variables
 
 TIME IS IN UTC!
--v ESPHOME_TARGET="IP:PORT"
--v SELENIUM_TARGET="IP:PORT"
+-e ESPHOME_TARGET="IP:PORT"
+-e SELENIUM_TARGET="IP:PORT"
