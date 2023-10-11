@@ -36,8 +36,6 @@ def job():
     if datetime.date.today().day not in [9]:
         print("Not today m'dude", datetime.date.today().day)
         return
-    #check environ:
-    #TODO
 
     update_esphome(os.environ['ESPHOME_TARGET'], os.environ['SELENIUM_TARGET'])
 
@@ -45,7 +43,7 @@ if __name__ == "__main__":
     schedule.every().day.at("01:00").do(job)
     print("Schedule Started")
 
-    #TODO check esp en selenium target
+    #TODO check esp en selenium target and date env
 
 
     while True:
