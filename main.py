@@ -14,22 +14,23 @@ def update_esphome(esphometarget, seleniumtarget):
                         options=options
                         ) as driver:
 
-        #maximize the window size
         driver.maximize_window()
         time.sleep(0.5)
 
         driver.get('http://'+esphometarget)
-        time.sleep(1)
+        time.sleep(2)
 
         try:
             #press first update_all button
             driver.find_element(By.XPATH, "//esphome-header-menu").shadow_root.find_element(By.CSS_SELECTOR, "mwc-button").click()
-            time.sleep(5)
+            time.sleep(2)
             #press second update_all button in dialog
             driver.find_element(By.XPATH, "//esphome-confirmation-dialog").shadow_root.find_element(By.CSS_SELECTOR, "mwc-dialog").find_element(By.XPATH, "mwc-button[2]").click()
 
         except Exception as e:
             print(e)
+        
+        #wait for alle esp devices to be updated
         time.sleep(1000)
 
 def job():
