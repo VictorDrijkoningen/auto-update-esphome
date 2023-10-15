@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 import time, datetime
 import os
 import schedule
+import re
 
 def update_esphome_via_selenium(esphometarget, seleniumtarget):
     print("Starting ESPHOME Update All")
@@ -33,8 +34,10 @@ def update_esphome_via_selenium(esphometarget, seleniumtarget):
         #wait for alle esp devices to be updated
         time.sleep(1000)
 
+
 def update_esphome_via_socket(esphometarget):
     pass
+
 
 def job():
     if datetime.date.today().day not in [9]:
@@ -49,15 +52,36 @@ def job():
         print("How did we get here?")
         exit(1)
 
-if __name__ == "__main__":
-    schedule.every().day.at("01:00").do(job)
-    print("Schedule Started")
 
-    #check environment variables
-    if os.environ['MODE'] != 'selenium' or os.environ['MODE'] != 'socket':
+
+def check_env():
+    '''function checks the environment variables to be suitable for this code'''
+
+    ip_regex = '[0-9]+(?:\.[0-9]+){3}:[0-9]+' #TODO include ipv6, but good enough for now.
+
+    if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         print("ERROR: unknown mode")
         exit(1)
 
+    if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
+        print("ERROR: esphome target not valid")
+        exit(1)
+    
+    if os.environ.get("MODE") == 'selenium':
+        if not re.search(ip_regex, str(os.environ.get('SELENIUM_TARGET'))):
+            print("ERROR: selenium target not valid")
+            exit(1)
+
+
+if __name__ == "__main__":
+    '''main program thread'''
+
+    #check environment variables
+    check_env()
+
+
+    schedule.every().day.at("01:00").do(job)
+    print("Schedule Started")
     while True:
         schedule.run_pending()
         time.sleep(1)
