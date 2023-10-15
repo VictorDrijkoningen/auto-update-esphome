@@ -5,7 +5,7 @@ import time, datetime
 import os
 import schedule
 
-def update_esphome(esphometarget, seleniumtarget):
+def update_esphome_via_selenium(esphometarget, seleniumtarget):
     print("Starting ESPHOME Update All")
     options = webdriver.ChromeOptions()
     options.add_argument('--ignore-ssl-errors=yes')
@@ -33,21 +33,30 @@ def update_esphome(esphometarget, seleniumtarget):
         #wait for alle esp devices to be updated
         time.sleep(1000)
 
+def update_esphome_via_socket(esphometarget):
+    pass
+
 def job():
     if datetime.date.today().day not in [9]:
         print("Not today m'dude", datetime.date.today().day)
         return
 
-    update_esphome(os.environ['ESPHOME_TARGET'], os.environ['SELENIUM_TARGET'])
+    if os.environ['MODE'] == 'selenium':
+        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], os.environ['SELENIUM_TARGET'])
+    elif os.environ['MODE'] == 'socket':
+        update_esphome_via_socket(os.environ['ESPHOME_TARGET'])
+    else:
+        print("How did we get here?")
+        exit(1)
 
 if __name__ == "__main__":
     schedule.every().day.at("01:00").do(job)
     print("Schedule Started")
 
-    #TODO check esp en selenium target and date env
-    if os.environ['MODE'] != 'selenium':
+    #check environment variables
+    if os.environ['MODE'] != 'selenium' or os.environ['MODE'] != 'socket':
         print("ERROR: unknown mode")
-        exit()
+        exit(1)
 
     while True:
         schedule.run_pending()
