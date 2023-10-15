@@ -8,3 +8,4 @@ auto update esphome devices
 TIME IS IN UTC!
 -e ESPHOME_TARGET="IP:PORT"
 -e SELENIUM_TARGET="IP:PORT"
+-e MODE="selenium" or "socket"
