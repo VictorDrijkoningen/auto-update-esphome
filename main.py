@@ -45,7 +45,9 @@ if __name__ == "__main__":
     print("Schedule Started")
 
     #TODO check esp en selenium target and date env
-
+    if os.environ['MODE'] != 'selenium':
+        print("ERROR: unknown mode")
+        exit()
 
     while True:
         schedule.run_pending()
