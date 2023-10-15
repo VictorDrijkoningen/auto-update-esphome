@@ -6,14 +6,12 @@ import os
 import schedule
 import re
 
-def update_esphome_via_selenium(esphometarget, seleniumtarget):
+def update_esphome_via_selenium(esphometarget):
     print("Starting ESPHOME Update All")
     options = webdriver.ChromeOptions()
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
-    with webdriver.Remote(command_executor='http://'+seleniumtarget+'/wd/hub',
-                        options=options
-                        ) as driver:
+    with webdriver.Chrome() as driver:
 
         driver.maximize_window()
         time.sleep(0.5)
@@ -40,12 +38,12 @@ def update_esphome_via_socket(esphometarget):
 
 
 def job():
-    if datetime.date.today().day not in [9]:
+    if datetime.date.today().day not in [15]:
         print("Not today m'dude", datetime.date.today().day)
         return
 
     if os.environ['MODE'] == 'selenium':
-        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], os.environ['SELENIUM_TARGET'])
+        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'])
     elif os.environ['MODE'] == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'])
     else:
@@ -67,10 +65,6 @@ def check_env():
         print("ERROR: esphome target not valid")
         exit(1)
     
-    if os.environ.get("MODE") == 'selenium':
-        if not re.search(ip_regex, str(os.environ.get('SELENIUM_TARGET'))):
-            print("ERROR: selenium target not valid")
-            exit(1)
 
 
 if __name__ == "__main__":
@@ -79,8 +73,8 @@ if __name__ == "__main__":
     #check environment variables
     check_env()
 
-
-    schedule.every().day.at("01:00").do(job)
+    job()
+    schedule.every().day.at("19:00").do(job)
     print("Schedule Started")
     while True:
         schedule.run_pending()
