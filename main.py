@@ -57,7 +57,7 @@ def job():
 def check_env():
     '''function checks the environment variables to be suitable for this code'''
 
-    ip_regex = '[0-9]+(?:\.[0-9]+){3}:[0-9]+' #TODO include ipv6, but good enough for now.
+    ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #TODO include ipv6, but good enough for now.
 
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         print("ERROR: unknown mode")
