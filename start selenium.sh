@@ -1,3 +1,4 @@
+echo "WARNING this is a dev script"
 
 sudo docker pull selenium/standalone-chrome:latest
 

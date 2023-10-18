@@ -1,4 +1,6 @@
-sudo docker build ./ --tag=victordrijkoningen/auto-update-esphome
+echo "WANRING this is a dev script!"
+
+sudo docker build ./ --tag=victordrijkoningen/auto-update-esphome:latest
 
 sudo docker rm -f auto-update-esphome
 
