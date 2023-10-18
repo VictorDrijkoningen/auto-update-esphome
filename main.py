@@ -31,6 +31,7 @@ def update_esphome_via_selenium(esphometarget):
         
         #wait for alle esp devices to be updated
         time.sleep(1000)
+        print("Selenium Job ran successfully")
 
 
 def update_esphome_via_socket(esphometarget):
@@ -58,7 +59,7 @@ def check_env():
     ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #TODO include ipv6, but good enough for now.
 
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
-        print("ERROR: unknown mode")
+        print(f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
 
     if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
@@ -73,7 +74,8 @@ if __name__ == "__main__":
     #check environment variables
     check_env()
 
-    job()
+    update_esphome_via_selenium(os.environ['ESPHOME_TARGET'])
+
     schedule.every().day.at("19:00").do(job)
     print("Schedule Started")
     while True:
