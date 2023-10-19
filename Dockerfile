@@ -12,6 +12,7 @@ RUN chmod 755 /opt/geckodriver
 RUN ln -fs /opt/geckodriver /usr/bin/geckodriver 
 RUN ln -fs /opt/geckodriver /usr/local/bin/geckodriver
 RUN rm -rf /var/lib/apt/lists/*
+RUN rm /tmp/geckodriver.tar.gz
 
 #install python requirements
 RUN pip install --no-cache-dir --upgrade pip && \
