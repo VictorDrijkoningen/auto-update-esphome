@@ -2,9 +2,10 @@
 auto update esphome devices 
 
 # How to:
-1. Spin up the dockercontainer with the correct env variables
+Just spin up the dockercontainer with the correct env variables as noted beneath:
 
-TIME IS IN UTC!
+
+# Environment:
 -e ESPHOME_TARGET="IP:PORT"
 -e MODE="selenium" or "socket"
 -e PASSWORD="your esphome instance password" #TODO
