@@ -1,17 +1,20 @@
 
 from selenium import webdriver
+from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 import time, datetime
 import os
+import subprocess
 import schedule
 import re
 
 def update_esphome_via_selenium(esphometarget):
     print("Starting ESPHOME Update All")
-    options = webdriver.ChromeOptions()
-    options.add_argument('--ignore-ssl-errors=yes')
-    options.add_argument('--ignore-certificate-errors')
-    with webdriver.Chrome() as driver:
+    opts = FirefoxOptions()
+    opts.add_argument("--headless")
+    # subprocess.Popen("geckodriver")
+    # time.sleep(50)
+    with webdriver.Firefox(options=opts) as driver:
 
         driver.maximize_window()
         time.sleep(0.5)
@@ -30,7 +33,8 @@ def update_esphome_via_selenium(esphometarget):
             print(e)
         
         #wait for alle esp devices to be updated
-        time.sleep(1000)
+        print("waiting for update to finish")
+        time.sleep(1000) #todo get info that it actually finished and then no need for extra time
         print("Selenium Job ran successfully")
 
 
