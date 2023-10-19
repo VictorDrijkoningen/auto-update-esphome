@@ -8,7 +8,7 @@ Just spin up the dockercontainer with the correct env variables as noted beneath
 # Environment:
 -e ESPHOME_TARGET="IP:PORT"
 
--e MODE="selenium" or "socket"
+-e MODE="selenium" or "socket" (socket work is not yet completed!)
 
 -e PASSWORD="your esphome instance password" (leave empty if no authentication)
 
