@@ -5,6 +5,7 @@ import re
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
+import selenium.common.exceptions
 import schedule
 
 
@@ -49,18 +50,20 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog")
             button_encasing = dialog.shadow_root.find_element(By.CSS_SELECTOR, "mwc-dialog")
             button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
+            
+            #wait for all esp devices to be updated
+            print("waiting for update to finish")
 
-        except Exception as e:
+            time.sleep(100) #todo finish when actually finished
+
+            driver.save_screenshot("/tmp/screenshots/999.done.png")
+            print("Selenium Job ran successfully")
+
+        except selenium.common.exceptions.NoSuchElementException as e:
             print("Some elements could not be found in esphome", e)
             print("ERROR: ESPHOME UPDATING FAILED")
 
-        #wait for all esp devices to be updated
-        print("waiting for update to finish")
-
-        time.sleep(100) #todo finish when actually finished
-
-        driver.save_screenshot("/tmp/screenshots/999.done.png")
-        print("Selenium Job ran successfully")
+        
 
 
 def update_esphome_via_socket(esphometarget):
