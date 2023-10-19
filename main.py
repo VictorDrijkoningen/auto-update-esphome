@@ -25,22 +25,22 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
         try:
             if not (authentication is None or authentication == [None, None] ):
                 #There is authentication needed
-                driver.save_screenshot("/tmp/screenshots/1.beforeauth.png")
+                #driver.save_screenshot("/tmp/screenshots/1.beforeauth.png")
                 input_username = driver.find_element(By.ID , "username-field")
                 input_username.send_keys(authentication[0])
                 input_username = driver.find_element(By.ID , "password-field")
                 input_username.send_keys(authentication[1])
-                driver.save_screenshot("/tmp/screenshots/2.aftertyping.png")
+                #driver.save_screenshot("/tmp/screenshots/2.aftertyping.png")
                 input_submit = driver.find_element(By.ID, "login-form-submit")
                 input_submit.click()
-                driver.save_screenshot("/tmp/screenshots/3.afterauth.png")
+                #driver.save_screenshot("/tmp/screenshots/3.afterauth.png")
 
 
 
             #press first update_all button
             button_encasing = driver.find_element(By.XPATH, "//esphome-header-menu").shadow_root
             button_encasing.find_element(By.CSS_SELECTOR, "mwc-button").click()
-            driver.save_screenshot("/tmp/screenshots/4.dialog.png")
+            #driver.save_screenshot("/tmp/screenshots/4.dialog.png")
 
 
             time.sleep(2)
