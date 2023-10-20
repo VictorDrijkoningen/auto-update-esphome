@@ -1,6 +1,8 @@
 FROM python:slim
 WORKDIR /app
-COPY ./* .
+COPY ./main.py .
+COPY ./requirements.txt .
+COPY ./LICENCE .
 
 
 #install firefox for headless use firefox:

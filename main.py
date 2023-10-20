@@ -5,10 +5,13 @@ import re
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
+import selenium.common.exceptions
 import schedule
 
 
 def update_esphome_via_selenium(esphometarget, authentication = None):
+    '''update esphome devices via a selenium operated firefox instance'''
+
     print("Starting ESPHOME Update All")
     opts = FirefoxOptions()
     opts.add_argument("--headless")
@@ -17,8 +20,6 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
     with webdriver.Firefox(options=opts) as driver:
 
         driver.maximize_window()
-        time.sleep(0.5)
-
         driver.get('http://'+esphometarget)
         time.sleep(2)
 
@@ -46,21 +47,38 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             time.sleep(2)
 
             #press second update_all button in dialog
-            dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog")
-            button_encasing = dialog.shadow_root.find_element(By.CSS_SELECTOR, "mwc-dialog")
+            dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog").shadow_root
+            button_encasing = dialog.find_element(By.CSS_SELECTOR, "mwc-dialog")
             button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
 
-        except Exception as e:
+            #wait for all esp devices to be updated
+            print("waiting for update to finish")
+
+            #wait for summary to appear or timeout this action
+            starttime = time.time()
+            while True:
+                time.sleep(1)
+                if time.time() - starttime > 1000:
+                    print("ERROR: Failed to find update dialog, update failed!")
+                    driver.save_screenshot("/tmp/screenshots/999.failed.png")
+                    break
+                try:
+                    step1 = driver.find_element(By.CSS_SELECTOR, "esphome-update-all-dialog")
+                    step1.shadow_root.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
+
+                    #driver.save_screenshot("/tmp/screenshots/999.done.png")
+                    print("Selenium Job successfully pressed update")
+                    time.sleep(1)
+                    break
+
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass #expected because updating takes time.
+
+
+        except selenium.common.exceptions.NoSuchElementException as e:
             print("Some elements could not be found in esphome", e)
             print("ERROR: ESPHOME UPDATING FAILED")
 
-        #wait for all esp devices to be updated
-        print("waiting for update to finish")
-
-        time.sleep(100) #todo finish when actually finished
-
-        driver.save_screenshot("/tmp/screenshots/999.done.png")
-        print("Selenium Job ran successfully")
 
 
 def update_esphome_via_socket(esphometarget):
@@ -75,7 +93,8 @@ def job():
         return
 
     if os.environ['MODE'] == 'selenium':
-        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], [os.environ.get('USERNAME'), os.environ.get('PASSWORD')])
+        auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
+        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
     elif os.environ['MODE'] == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'])
     else:
@@ -110,15 +129,12 @@ def check_env():
     else:
         print("Credentials found, rolling with credentials")
 
-    
 
 
 if __name__ == "__main__":
 
     #check environment variables
     check_env()
-
-    update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], [os.environ.get('USERNAME'), os.environ.get('PASSWORD')])
 
     schedule.every().day.at("19:00").do(job)
     print("Schedule Started")
