@@ -63,8 +63,8 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                     driver.save_screenshot("/tmp/screenshots/999.failed.png")
                     break
                 try:
-                    step1 = driver.find_element(By.CSS_SELECTOR, "esphome-update-all-dialog").shadow_root
-                    step2 = step1.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
+                    step1 = driver.find_element(By.CSS_SELECTOR, "esphome-update-all-dialog")
+                    step1.shadow_root.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
 
                     #driver.save_screenshot("/tmp/screenshots/999.done.png")
                     print("Selenium Job successfully pressed update")
@@ -73,16 +73,12 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
                 except selenium.common.exceptions.NoSuchElementException:
                     pass #expected because updating takes time.
-                    
-
-
 
 
         except selenium.common.exceptions.NoSuchElementException as e:
             print("Some elements could not be found in esphome", e)
             print("ERROR: ESPHOME UPDATING FAILED")
 
-        
 
 
 def update_esphome_via_socket(esphometarget):
@@ -97,7 +93,8 @@ def job():
         return
 
     if os.environ['MODE'] == 'selenium':
-        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], [os.environ.get('USERNAME'), os.environ.get('PASSWORD')])
+        auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
+        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
     elif os.environ['MODE'] == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'])
     else:
@@ -132,15 +129,12 @@ def check_env():
     else:
         print("Credentials found, rolling with credentials")
 
-    
 
 
 if __name__ == "__main__":
 
     #check environment variables
     check_env()
-
-    update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], [os.environ.get('USERNAME'), os.environ.get('PASSWORD')])
 
     schedule.every().day.at("19:00").do(job)
     print("Schedule Started")
