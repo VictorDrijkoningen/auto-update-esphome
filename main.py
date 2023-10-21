@@ -21,8 +21,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
     print("Starting ESPHOME Update All")
     opts = FirefoxOptions()
     opts.add_argument("--headless")
-    # subprocess.Popen("geckodriver")
-    # time.sleep(50)
+
     with webdriver.Firefox(options=opts) as driver:
 
         driver.maximize_window()
