@@ -9,6 +9,12 @@ import selenium.common.exceptions
 import schedule
 
 
+def save_screenshot(driver, tag):
+    '''if the development env var is set, then store the screenshot'''
+    if os.environ.get("SCREENSHOT_LOG") == "TRUE":
+        driver.save_screenshot(f"/tmp/screenshots/{datetime.date.today()}-{tag}.png")
+
+
 def update_esphome_via_selenium(esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
 
@@ -26,22 +32,22 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
         try:
             if not (authentication is None or authentication == [None, None] ):
                 #There is authentication needed
-                #driver.save_screenshot("/tmp/screenshots/1.beforeauth.png")
+                save_screenshot(driver, "1.beforeauth")
                 input_username = driver.find_element(By.ID , "username-field")
                 input_username.send_keys(authentication[0])
                 input_username = driver.find_element(By.ID , "password-field")
                 input_username.send_keys(authentication[1])
-                #driver.save_screenshot("/tmp/screenshots/2.aftertyping.png")
+                save_screenshot(driver, "2.aftertyping")
                 input_submit = driver.find_element(By.ID, "login-form-submit")
                 input_submit.click()
-                #driver.save_screenshot("/tmp/screenshots/3.afterauth.png")
+                save_screenshot(driver, "3.afterauth")
 
 
 
             #press first update_all button
             button_encasing = driver.find_element(By.XPATH, "//esphome-header-menu").shadow_root
             button_encasing.find_element(By.CSS_SELECTOR, "mwc-button").click()
-            #driver.save_screenshot("/tmp/screenshots/4.dialog.png")
+            save_screenshot(driver, "4.dialog")
 
 
             time.sleep(2)
@@ -60,13 +66,13 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 time.sleep(1)
                 if time.time() - starttime > 1000:
                     print("ERROR: Failed to find update dialog, update failed!")
-                    driver.save_screenshot("/tmp/screenshots/999.failed.png")
+                    save_screenshot(driver, "5.failed")
                     break
                 try:
                     step1 = driver.find_element(By.CSS_SELECTOR, "esphome-update-all-dialog")
                     step1.shadow_root.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
 
-                    #driver.save_screenshot("/tmp/screenshots/999.done.png")
+                    save_screenshot(driver, "5.done")
                     print("Selenium Job successfully pressed update")
                     time.sleep(1)
                     break
@@ -83,7 +89,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
 def update_esphome_via_socket(esphometarget):
     '''Update esphome devices via a socket call'''
-    pass
+    print(f"TODO socket call to {esphometarget}")
 
 
 def job():
@@ -124,11 +130,16 @@ def check_env():
         if os.environ.get('PASSWORD') is None:
             print("ERROR: PASSWORD EMPTY")
             exit(1)
+
     if os.environ.get('USERNAME') is None and os.environ.get('PASSWORD') is None:
         print("No credentials found, assuming no credentials needed")
     else:
         print("Credentials found, rolling with credentials")
 
+    if os.environ.get("SCREENSHOT_LOG") == "TRUE":
+        print("Logging screenshots")
+    else:
+        print("Not logging screenshots")
 
 
 if __name__ == "__main__":
@@ -136,7 +147,7 @@ if __name__ == "__main__":
     #check environment variables
     check_env()
 
-    schedule.every().day.at("19:00").do(job)
+    schedule.every().day.at("01:00").do(job)
     print("Schedule Started")
     while True:
         schedule.run_pending()

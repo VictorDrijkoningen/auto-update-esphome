@@ -10,7 +10,8 @@ Just spin up the dockercontainer with the correct env variables as noted beneath
 
 -e MODE="selenium" or "socket" (socket work is not yet completed!)
 
--e PASSWORD="your esphome instance password" (leave empty if no authentication)
-
 -e USERNAME="your esphome instance username" (leave empty if no authentication)
 
+-e PASSWORD="your esphome instance password" (leave empty if no authentication)
+
+-e SCREENSHOT_LOG="TRUE"
