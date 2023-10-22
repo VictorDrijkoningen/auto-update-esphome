@@ -72,7 +72,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                     step1.shadow_root.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
 
                     save_screenshot(driver, "5.done")
-                    print("Selenium Job successfully pressed update")
+                    print(f"Selenium Job successfully pressed update and took {time.time()-starttime}")
                     time.sleep(1)
                     break
 
@@ -142,6 +142,8 @@ def check_env():
 
 
 if __name__ == "__main__":
+    with open('VERSION', encoding="utf-8") as file:
+        print(file.read())
 
     #check environment variables
     check_env()
