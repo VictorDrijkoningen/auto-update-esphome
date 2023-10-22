@@ -3,6 +3,7 @@ WORKDIR /app
 COPY ./main.py .
 COPY ./requirements.txt .
 COPY ./LICENSE .
+COPY ./VERSION .
 
 
 #install firefox for headless use firefox:
