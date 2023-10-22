@@ -61,24 +61,21 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
             #wait for summary to appear or timeout this action
             starttime = time.time()
+            oldpage = driver.get_screenshot_as_base64()
             while True:
-                time.sleep(1)
-                if time.time() - starttime > 1000:
+                time.sleep(3)
+                if time.time() - starttime > 100:
                     print("ERROR: Failed to find update dialog, update failed!")
                     save_screenshot(driver, "5.failed")
                     break
-                try:
-                    step1 = driver.find_element(By.CSS_SELECTOR, "esphome-update-all-dialog")
-                    step1.shadow_root.find_element(By.CSS_SELECTOR, "esphome-process-dialog")
 
-                    save_screenshot(driver, "5.done")
-                    print(f"Selenium Job successfully pressed update and took {time.time()-starttime}")
-                    time.sleep(1)
+                #compare page to see if nothing is changing anymore
+                newpage = driver.get_screenshot_as_base64()
+                if newpage == oldpage:
+                    print("end of update detected")
+                    save_screenshot(driver, "5.success")
                     break
-
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass #expected because updating takes time.
-
+                oldpage = newpage
 
         except selenium.common.exceptions.NoSuchElementException as e:
             print("Some elements could not be found in esphome", e)
