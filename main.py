@@ -64,7 +64,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             oldpage = driver.get_screenshot_as_base64()
             while True:
                 time.sleep(3)
-                if time.time() - starttime > 100:
+                if time.time() - starttime > 1000:
                     print("ERROR: Failed to find update dialog, update failed!")
                     save_screenshot(driver, "5.failed")
                     break
