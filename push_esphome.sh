@@ -1,5 +1,7 @@
 echo "WARNING this is a dev script!"
 
-sudo docker build ./ --tag=victordrijkoningen/auto-update-esphome:latest
+sudo docker buildx create --name multibuilder
 
-sudo docker push victordrijkoningen/auto-update-esphome:latest
+sudo docker buildx use multibuilder
+
+sudo docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t victordrijkoningen/auto-update-esphome:latest --push .
