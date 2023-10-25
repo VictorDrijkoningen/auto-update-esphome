@@ -112,16 +112,19 @@ def job():
 def check_env():
     '''function checks the environment variables to be suitable for this code'''
 
-    ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #TODO include ipv6, but good enough for now.
+    ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
+    #check MODE
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         print(f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
 
+    #check IP esphome
     if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
         print("ERROR: esphome target not valid")
         exit(1)
 
+    #check auth
     if not os.environ.get('PASSWORD') is None:
         if os.environ.get('USERNAME') is None:
             print("ERROR: USERNAME EMPTY")
@@ -136,6 +139,7 @@ def check_env():
     else:
         print("Credentials found, rolling with credentials")
 
+    #check logging
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         print("Logging screenshots")
 
@@ -154,14 +158,25 @@ def check_env():
         print("ERROR: faulty value in RUN_DAYS")
         exit(1)
 
+    #check time
+    if os.environ.get("RUN_TIME") is None:
+        print("ERROR: No RUN_TIME detected")
+        exit(1)
+    if not len(os.environ.get("RUN_TIME")) == 5:
+        print("ERROR: RUN_TIME in wrong format")
+        exit(1)
+
+
+
+
 if __name__ == "__main__":
     with open('VERSION', encoding="utf-8") as file:
-        print(file.read())
+        print("VERSION: ", file.read())
 
     #check environment variables
     check_env()
 
-    schedule.every().day.at("01:00").do(job)
+    schedule.every().day.at(os.environ.get("RUN_TIME")).do(job)
     print("Schedule Started")
     while True:
         schedule.run_pending()
