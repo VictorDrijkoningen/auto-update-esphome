@@ -90,7 +90,11 @@ def update_esphome_via_socket(esphometarget):
 
 def job():
     '''check datetime and start job with right mode'''
-    if datetime.date.today().day not in [15]:
+    run_days = os.environ.get('RUN_DAYS')
+    run_days = run_days.replace(' ', '').split(',')
+    run_days = [int(i) for i in run_days]
+
+    if datetime.date.today().day not in run_days:
         print("Not today m'dude", datetime.date.today().day)
         return
 
@@ -134,9 +138,21 @@ def check_env():
 
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         print("Logging screenshots")
-    else:
-        print("Not logging screenshots")
 
+    #check days
+    if os.environ.get('RUN_DAYS') is None:
+        print("ERROR: No days to run found")
+        exit(1)
+
+    run_days = os.environ.get('RUN_DAYS')
+    run_days = run_days.replace(' ', '').split(',')
+    if len(run_days) == 0:
+        print("ERROR: RUN_DAYS env found no days")
+    try:
+        run_days = [int(i) for i in run_days]
+    except ValueError:
+        print("ERROR: faulty value in RUN_DAYS")
+        exit(1)
 
 if __name__ == "__main__":
     with open('VERSION', encoding="utf-8") as file:

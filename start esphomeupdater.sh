@@ -8,5 +8,5 @@ sudo docker run -d \
   -e MODE="selenium" \
   -e USERNAME="user" \
   -e PASSWORD="pass" \
-  -e SCREENSHOT_LOG="TRUE" \
+  -e RUN_DAYS="5,15,25" \
   victordrijkoningen/auto-update-esphome
