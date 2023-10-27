@@ -14,9 +14,9 @@ Just spin up the dockercontainer with the correct env variables as noted beneath
 
 -e PASSWORD="your esphome instance password" (leave empty if no authentication)
 
--e RUN_DAYS="1,10,20" (comma separated list of days in the month that it should run the update cycle)
+-e RUN_DAYS="1,10,20" (comma separated list of days in the month that it should run the update cycle, leave empty for all days)
 
--e RUN_MONTHS="1,10,12" (comma separated list of months in the year that it should run the update cycle)
+-e RUN_MONTHS="1,10,12" (comma separated list of months in the year that it should run the update cycle, leave empty for all months)
 
 -e RUN_TIME="01:00" (time to run the update cycle at, format: hour:minutes)
 
