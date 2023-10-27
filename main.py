@@ -156,6 +156,7 @@ def check_env():
     run_months = run_months.replace(' ', '').split(',')
     if len(run_months) == 0:
         print("ERROR: RUN_MONTHS env found no months")
+        exit(1)
     try:
         run_months = [int(i) for i in run_months]
     except ValueError:
@@ -171,6 +172,7 @@ def check_env():
     run_days = run_days.replace(' ', '').split(',')
     if len(run_days) == 0:
         print("ERROR: RUN_DAYS env found no days")
+        exit(1)
     try:
         run_days = [int(i) for i in run_days]
     except ValueError:
