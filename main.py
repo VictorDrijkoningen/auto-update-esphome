@@ -82,7 +82,6 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             print("ERROR: ESPHOME UPDATING FAILED")
 
 
-
 def update_esphome_via_socket(esphometarget):
     '''Update esphome devices via a socket call'''
     print(f"TODO socket call to {esphometarget}")
@@ -94,8 +93,14 @@ def job():
     run_days = run_days.replace(' ', '').split(',')
     run_days = [int(i) for i in run_days]
 
+    run_months = os.environ.get('RUN_MONTHS')
+    run_months = run_months.replace(' ', '').split(',')
+    run_months = [int(i) for i in run_months]
+
+    if datetime.date.today().month not in run_months:
+        return
+
     if datetime.date.today().day not in run_days:
-        print("Not today m'dude", datetime.date.today().day)
         return
 
     if os.environ['MODE'] == 'selenium':
@@ -106,7 +111,6 @@ def job():
     else:
         print("How did we get here?")
         exit(1)
-
 
 
 def check_env():
@@ -143,10 +147,25 @@ def check_env():
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         print("Logging screenshots")
 
+    #check RUN_MONTHS
+    if os.environ.get('RUN_MONTHS') is None:
+        print("No months to run found, setting to all months")
+        os.environ.setdefault('RUN_MONTHS', '1,2,3,4,5,6,7,8,9,10,11,12')
+
+    run_months = os.environ.get('RUN_MONTHS')
+    run_months = run_months.replace(' ', '').split(',')
+    if len(run_months) == 0:
+        print("ERROR: RUN_MONTHS env found no months")
+    try:
+        run_months = [int(i) for i in run_months]
+    except ValueError:
+        print("ERROR: faulty value in RUN_MONTHS")
+        exit(1)
+
     #check days
     if os.environ.get('RUN_DAYS') is None:
-        print("ERROR: No days to run found")
-        exit(1)
+        print("No days to run found, setting to all days")
+        os.environ.setdefault('RUN_MONTHS', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31')
 
     run_days = os.environ.get('RUN_DAYS')
     run_days = run_days.replace(' ', '').split(',')
@@ -165,8 +184,6 @@ def check_env():
     if not len(os.environ.get("RUN_TIME")) == 5:
         print("ERROR: RUN_TIME in wrong format")
         exit(1)
-
-
 
 
 if __name__ == "__main__":
