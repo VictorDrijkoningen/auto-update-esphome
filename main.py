@@ -42,6 +42,23 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 save_screenshot(driver, "3.afterauth")
 
 
+            #check if devices are up-to-date
+            devices_list = driver.find_element(By.XPATH, "//esphome-devices-list").shadow_root
+            devices = devices_list.find_elements(By.CSS_SELECTOR, "esphome-configured-device-card")
+            found_updateable = False
+            for device in devices:
+                card = device.shadow_root.find_element(By.CSS_SELECTOR, 'esphome-card')
+                status = card.get_attribute('style')
+                print(status)
+
+                if 'update' in status:
+                    found_updateable = True
+                    break
+
+            if not found_updateable:
+                print("no updates found in devices, done updating")
+                return 1
+
 
             #press first update_all button
             button_encasing = driver.find_element(By.XPATH, "//esphome-header-menu").shadow_root
@@ -80,11 +97,13 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
         except selenium.common.exceptions.NoSuchElementException as e:
             print("Some elements could not be found in esphome", e)
             print("ERROR: ESPHOME UPDATING FAILED")
+        return 0
 
 
 def update_esphome_via_socket(esphometarget):
     '''Update esphome devices via a socket call'''
     print(f"TODO socket call to {esphometarget}")
+    exit(1)
 
 
 def job():

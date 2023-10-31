@@ -1,7 +1,7 @@
 # auto-update-esphome
-auto update esphome devices 
+auto update esphome devices
 
-# How to:
+# How to use this container:
 Just spin up the dockercontainer with the correct env variables as noted beneath:
 
 
