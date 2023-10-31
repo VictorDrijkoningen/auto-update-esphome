@@ -214,11 +214,6 @@ if __name__ == "__main__":
     #check environment variables
     check_env()
 
-
-    auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
-    update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
-
-
     schedule.every().day.at(os.environ.get("RUN_TIME")).do(job)
     print("Schedule Started")
     while True:
