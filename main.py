@@ -49,7 +49,6 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             for device in devices:
                 card = device.shadow_root.find_element(By.CSS_SELECTOR, 'esphome-card')
                 status = card.get_attribute('style')
-                print(status)
 
                 if 'update' in status:
                     found_updateable = True
@@ -100,14 +99,24 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
         return 0
 
 
-def update_esphome_via_socket(esphometarget):
+def update_esphome_via_socket(esphometarget, auth):
     '''Update esphome devices via a socket call'''
     print(f"TODO socket call to {esphometarget}")
     exit(1)
 
 
-def job():
-    '''check datetime and start job with right mode'''
+def start_update():
+    '''start the update process'''
+    auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
+    if os.environ['MODE'] == 'selenium':
+        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
+    elif os.environ['MODE'] == 'socket':
+        update_esphome_via_socket(os.environ['ESPHOME_TARGET'], auth)
+
+
+
+def check_date():
+    '''check datetime and start update'''
     run_days = os.environ.get('RUN_DAYS')
     run_days = run_days.replace(' ', '').split(',')
     run_days = [int(i) for i in run_days]
@@ -122,15 +131,7 @@ def job():
     if datetime.date.today().day not in run_days:
         return
 
-    if os.environ['MODE'] == 'selenium':
-        auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
-        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
-    elif os.environ['MODE'] == 'socket':
-        update_esphome_via_socket(os.environ['ESPHOME_TARGET'])
-    else:
-        print("How did we get here?")
-        exit(1)
-
+    start_update()
 
 def check_env():
     '''function checks the environment variables to be suitable for this code'''
@@ -214,7 +215,10 @@ if __name__ == "__main__":
     #check environment variables
     check_env()
 
-    schedule.every().day.at(os.environ.get("RUN_TIME")).do(job)
+    if os.environ.get('UPDATE_ON_STARTUP') == 'TRUE':
+        start_update()
+
+    schedule.every().day.at(os.environ.get("RUN_TIME")).do(check_date)
     print("Schedule Started")
     while True:
         schedule.run_pending()

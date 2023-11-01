@@ -21,3 +21,5 @@ Just spin up the dockercontainer with the correct env variables as noted beneath
 -e RUN_TIME="01:00" (time to run the update cycle at, format: hour:minutes)
 
 -e SCREENSHOT_LOG="TRUE" (OPTIONAL this enables the screenshot logging capability for debugging)
+
+-e UPDATE_ON_STARTUP="TRUE" (OPTIONAL, when true, runs update cycle on startup of docker container)
