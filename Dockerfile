@@ -18,8 +18,7 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN rm /tmp/geckodriver.tar.gz
 
 #install python requirements
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 #start python script
 CMD ["python3", "-u", "main.py"]
