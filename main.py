@@ -59,7 +59,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 print("no updates found in devices, done updating")
                 return 1
 
-            print("Found {updateable_devices} devices that can be updated")
+            print(f"Found {updateable_devices} devices that can be updated")
 
 
             #press first update_all button
