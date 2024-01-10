@@ -55,7 +55,8 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 input_submit.click()
                 save_screenshot(driver, "3.afterauth")
 
-            time.sleep(3) #wait for page-load
+            time.sleep(1) #wait for page-load
+
             #check if devices are up-to-date
             devices_list = driver.find_element(By.XPATH, "//esphome-devices-list").shadow_root
             devices = devices_list.find_elements(By.CSS_SELECTOR, "esphome-configured-device-card")
