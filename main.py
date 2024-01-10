@@ -40,7 +40,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
         driver.maximize_window()
         driver.get('http://'+esphometarget)
-        time.sleep(2)
+        time.sleep(5)
 
         try:
             if not (authentication is None or authentication == [None, None] ):
