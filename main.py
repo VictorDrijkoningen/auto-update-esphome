@@ -15,6 +15,21 @@ def save_screenshot(driver, tag):
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"/tmp/screenshots/{datetime.date.today()}-{tag}.png")
 
+def log_size():
+    '''get log line count'''
+    with open(LOGFILE, "r", encoding="utf-8") as logf:
+        for count, _ in enumerate(logf):
+            pass
+        return count
+
+  
+def trim_log():
+    '''trim log file to 1000 on startup'''
+    if log_size() > 1000:
+        with open(LOGFILE, "w", encoding="utf-8") as logf:
+            d = datetime.date.today()
+            logf.write(f"trimmed on {d}")
+
 
 def log(message: str, timestamp=True) -> None:
     '''global logging function'''
@@ -229,6 +244,8 @@ def check_env():
 if __name__ == "__main__":
     with open('VERSION', encoding="utf-8") as f:
         log(f"VERSION: {f.read()}")
+
+    trim_log()
 
     #check environment variables
     check_env()
