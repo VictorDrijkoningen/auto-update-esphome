@@ -16,14 +16,14 @@ def save_screenshot(driver, tag):
         driver.save_screenshot(f"/tmp/screenshots/{datetime.date.today()}-{tag}.png")
 
 
-def log(message: str, message2="", timestamp=True) -> None:
+def log(message: str, timestamp=True) -> None:
     '''global logging function'''
     if timestamp:
         d = datetime.date.today()
-        inp = f'{d} - {message} {message2}.'
+        inp = f'{d} - {message}.'
         print(inp)
     else:
-        inp = f'{message} {message2}.'
+        inp = f'{message}.'
         print(inp)
     with open(LOGFILE, "a", encoding="utf-8") as logf:
         logf.write(inp+"\n")
@@ -228,7 +228,7 @@ def check_env():
 
 if __name__ == "__main__":
     with open('VERSION', encoding="utf-8") as f:
-        log("VERSION: ", f.read())
+        log(f"VERSION: {f.read()}")
 
     #check environment variables
     check_env()
