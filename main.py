@@ -8,17 +8,46 @@ from selenium.webdriver.common.by import By
 import selenium.common.exceptions
 import schedule
 
+LOGFILE = "./app.log"
 
 def save_screenshot(driver, tag):
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"/tmp/screenshots/{datetime.date.today()}-{tag}.png")
 
+def log_size():
+    '''get log line count'''
+    with open(LOGFILE, "r", encoding="utf-8") as logf:
+        for count, _ in enumerate(logf):
+            pass
+        return count
+
+  
+def trim_log():
+    '''trim log file to 1000 on startup'''
+    if log_size() > 1000:
+        with open(LOGFILE, "w", encoding="utf-8") as logf:
+            d = datetime.date.today()
+            logf.write(f"trimmed on {d}")
+
+
+def log(message: str, timestamp=True) -> None:
+    '''global logging function'''
+    if timestamp:
+        d = datetime.date.today()
+        inp = f'{d} - {message}.'
+        print(inp)
+    else:
+        inp = f'{message}.'
+        print(inp)
+    with open(LOGFILE, "a", encoding="utf-8") as logf:
+        logf.write(inp+"\n")
+
 
 def update_esphome_via_selenium(esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
 
-    print("Starting ESPHOME Update All")
+    log("Starting ESPHOME Update All")
     opts = FirefoxOptions()
     opts.add_argument("--headless")
 
@@ -41,6 +70,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 input_submit.click()
                 save_screenshot(driver, "3.afterauth")
 
+            time.sleep(1) #wait for page-load
 
             #check if devices are up-to-date
             devices_list = driver.find_element(By.XPATH, "//esphome-devices-list").shadow_root
@@ -56,10 +86,10 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                     updateable_devices += 1
 
             if not found_updateable:
-                print("no updates found in devices, done updating")
+                log("no updates found in devices, done updating")
                 return 1
 
-            print(f"Found {updateable_devices} devices that can be updated")
+            log(f"Found {updateable_devices} devices that can be updated")
 
 
             #press first update_all button
@@ -76,7 +106,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
 
             #wait for all esp devices to be updated
-            print("waiting for update to finish")
+            log("waiting for update to finish")
 
             #wait for summary to appear or timeout this action
             starttime = time.time()
@@ -84,27 +114,27 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             while True:
                 time.sleep(3)
                 if time.time() - starttime > 1000:
-                    print("ERROR: Failed to find update dialog, update failed!")
+                    log("ERROR: Failed to find update dialog, update failed!")
                     save_screenshot(driver, "5.failed")
                     break
 
                 #compare page to see if nothing is changing anymore
                 newpage = driver.get_screenshot_as_base64()
                 if newpage == oldpage:
-                    print("end of update detected")
+                    log("end of update detected")
                     save_screenshot(driver, "5.success")
                     break
                 oldpage = newpage
 
         except selenium.common.exceptions.NoSuchElementException as e:
-            print("Some elements could not be found in esphome", e)
-            print("ERROR: ESPHOME UPDATING FAILED")
+            log("Some elements could not be found in esphome", e)
+            log("ERROR: ESPHOME UPDATING FAILED")
         return 0
 
 
 def update_esphome_via_socket(esphometarget, auth):
     '''Update esphome devices via a socket call'''
-    print(f"TODO socket call to {esphometarget}")
+    log(f"TODO socket call to {esphometarget}")
     exit(1)
 
 
@@ -143,77 +173,79 @@ def check_env():
 
     #check MODE
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
-        print(f"ERROR: unknown mode {os.environ.get('MODE')}")
+        log(f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
 
     #check IP esphome
     if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
-        print("ERROR: esphome target not valid")
+        log("ERROR: esphome target not valid")
         exit(1)
 
     #check auth
     if not os.environ.get('PASSWORD') is None:
         if os.environ.get('USERNAME') is None:
-            print("ERROR: USERNAME EMPTY")
+            log("ERROR: USERNAME EMPTY")
             exit(1)
     if not os.environ.get('USERNAME') is None:
         if os.environ.get('PASSWORD') is None:
-            print("ERROR: PASSWORD EMPTY")
+            log("ERROR: PASSWORD EMPTY")
             exit(1)
 
     if os.environ.get('USERNAME') is None and os.environ.get('PASSWORD') is None:
-        print("No credentials found, assuming no credentials needed")
+        log("No credentials found, assuming no credentials needed")
     else:
-        print("Credentials found, rolling with credentials")
+        log("Credentials found, rolling with credentials")
 
     #check logging
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
-        print("Logging screenshots")
+        log("Logging screenshots")
 
     #check RUN_MONTHS
     if os.environ.get('RUN_MONTHS') is None:
-        print("No months to run found, setting to all months")
+        log("No months to run found, setting to all months")
         os.environ.setdefault('RUN_MONTHS', '1,2,3,4,5,6,7,8,9,10,11,12')
 
     run_months = os.environ.get('RUN_MONTHS')
     run_months = run_months.replace(' ', '').split(',')
     if len(run_months) == 0:
-        print("ERROR: RUN_MONTHS env found no months")
+        log("ERROR: RUN_MONTHS env found no months")
         exit(1)
     try:
         run_months = [int(i) for i in run_months]
     except ValueError:
-        print("ERROR: faulty value in RUN_MONTHS")
+        log("ERROR: faulty value in RUN_MONTHS")
         exit(1)
 
     #check days
     if os.environ.get('RUN_DAYS') is None:
-        print("No days to run found, setting to all days")
+        log("No days to run found, setting to all days")
         os.environ.setdefault('RUN_DAYS', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31')
 
     run_days = os.environ.get('RUN_DAYS')
     run_days = run_days.replace(' ', '').split(',')
     if len(run_days) == 0:
-        print("ERROR: RUN_DAYS env found no days")
+        log("ERROR: RUN_DAYS env found no days")
         exit(1)
     try:
         run_days = [int(i) for i in run_days]
     except ValueError:
-        print("ERROR: faulty value in RUN_DAYS")
+        log("ERROR: faulty value in RUN_DAYS")
         exit(1)
 
     #check time
     if os.environ.get("RUN_TIME") is None:
-        print("ERROR: No RUN_TIME detected")
+        log("ERROR: No RUN_TIME detected")
         exit(1)
     if not len(os.environ.get("RUN_TIME")) == 5:
-        print("ERROR: RUN_TIME in wrong format")
+        log("ERROR: RUN_TIME in wrong format")
         exit(1)
 
 
 if __name__ == "__main__":
-    with open('VERSION', encoding="utf-8") as file:
-        print("VERSION: ", file.read())
+    with open('VERSION', encoding="utf-8") as f:
+        log(f"VERSION: {f.read()}")
+
+    trim_log()
 
     #check environment variables
     check_env()
@@ -222,7 +254,7 @@ if __name__ == "__main__":
         start_update()
 
     schedule.every().day.at(os.environ.get("RUN_TIME")).do(check_date)
-    print("Schedule Started")
+    log("Schedule Started")
     while True:
         schedule.run_pending()
         time.sleep(1)
