@@ -121,7 +121,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 #compare page to see if nothing is changing anymore
                 newpage = driver.get_screenshot_as_base64()
                 if newpage == oldpage:
-                    log(f"end of update detected, took {time.time()-starttime} seconds")
+                    log(f"end of update detected, took {round(time.time()-starttime,0)} seconds")
                     save_screenshot(driver, "5.success")
                     break
                 oldpage = newpage
