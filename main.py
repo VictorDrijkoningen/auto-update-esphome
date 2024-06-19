@@ -55,7 +55,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
         driver.maximize_window()
         driver.get('http://'+esphometarget)
-        time.sleep(2)
+        time.sleep(5)
 
         try:
             if not (authentication is None or authentication == [None, None] ):
@@ -70,7 +70,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 input_submit.click()
                 save_screenshot(driver, "3.afterauth")
 
-            time.sleep(5) #wait for page-load
+            time.sleep(10) #wait for page-load
 
             #check if devices are up-to-date
             devices_list = driver.find_element(By.XPATH, "//esphome-devices-list").shadow_root
@@ -86,7 +86,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                     updateable_devices += 1
 
             if not found_updateable:
-                log("no updates found in devices, done updating")
+                log("no updates found for devices, done updating")
                 return 1
 
             log(f"Found {updateable_devices} devices that can be updated")
