@@ -74,7 +74,9 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 save_screenshot(driver, "3.afterauth")
 
             time.sleep(10) #wait for page-load
+            #TODO check if password was wrong
 
+            
             #check if devices are up-to-date
             el = "//esphome-devices-list"
             devices_list = driver.find_element(By.XPATH, el).shadow_root
