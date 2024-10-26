@@ -61,27 +61,32 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
             if not (authentication is None or authentication == [None, None] ):
                 #There is authentication needed
                 save_screenshot(driver, "1.beforeauth")
-                input_username = driver.find_element(By.ID , "username-field")
+                el = "username-field"
+                input_username = driver.find_element(By.ID , el)
                 input_username.send_keys(authentication[0])
-                input_username = driver.find_element(By.ID , "password-field")
+                el = "password-field"
+                input_username = driver.find_element(By.ID , el)
                 input_username.send_keys(authentication[1])
                 save_screenshot(driver, "2.aftertyping")
-                input_submit = driver.find_element(By.ID, "login-form-submit")
+                el = "login-form-submit"
+                input_submit = driver.find_element(By.ID, el)
                 input_submit.click()
                 save_screenshot(driver, "3.afterauth")
 
             time.sleep(10) #wait for page-load
 
             #check if devices are up-to-date
-            devices_list = driver.find_element(By.XPATH, "//esphome-devices-list").shadow_root
-            devices = devices_list.find_elements(By.CSS_SELECTOR, "esphome-configured-device-card")
+            el = "//esphome-devices-list"
+            devices_list = driver.find_element(By.XPATH, el).shadow_root
+            el = "esphome-configured-device-card"
+            devices = devices_list.find_elements(By.CSS_SELECTOR, el)
             found_updateable = False
             updateable_devices = 0
             for device in devices:
                 card = device.shadow_root.find_element(By.CSS_SELECTOR, 'esphome-card')
-                status = card.get_attribute('style')
+                status = card.find_elements(By.XPATH, "//div[@class='tooltip-container']")
 
-                if 'update' in status:
+                if len(status) > 0:
                     found_updateable = True
                     updateable_devices += 1
 
@@ -93,14 +98,17 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
 
             #press first update_all button
-            button_encasing = driver.find_element(By.XPATH, "//esphome-header-menu").shadow_root
-            button_encasing.find_element(By.CSS_SELECTOR, "mwc-button").click()
+            el = "//esphome-header-menu"
+            button_encasing = driver.find_element(By.XPATH, el).shadow_root
+            el = "mwc-button"
+            button_encasing.find_element(By.CSS_SELECTOR, el).click()
             save_screenshot(driver, "4.dialog")
 
 
             time.sleep(2)
 
             #press second update_all button in dialog
+            el = "update-confirmation-dialog"
             dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog").shadow_root
             button_encasing = dialog.find_element(By.CSS_SELECTOR, "mwc-dialog")
             button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
@@ -128,6 +136,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
 
         except selenium.common.exceptions.NoSuchElementException as e:
             log("Some elements could not be found in esphome", e)
+            log(f"element: {el}")
             log("ERROR: ESPHOME UPDATING FAILED")
         return 0
 
