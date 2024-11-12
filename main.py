@@ -79,7 +79,7 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 el = "login-form-submit"
                 ans_loggedin = driver.find_element(By.ID, el)
                 log("ERROR: LOGIN FAILED")
-                exit()
+                return 2
             except selenium.common.exceptions.NoSuchElementException:
                 log("Successfully logged in")
 
