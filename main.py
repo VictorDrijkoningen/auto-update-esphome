@@ -74,9 +74,15 @@ def update_esphome_via_selenium(esphometarget, authentication = None):
                 save_screenshot(driver, "3.afterauth")
 
             time.sleep(10) #wait for page-load
-            #TODO check if password was wrong
 
-            
+            try:
+                el = "login-form-submit"
+                ans_loggedin = driver.find_element(By.ID, el)
+                log("ERROR: LOGIN FAILED")
+                return 2
+            except selenium.common.exceptions.NoSuchElementException:
+                log("Successfully logged in")
+
             #check if devices are up-to-date
             el = "//esphome-devices-list"
             devices_list = driver.find_element(By.XPATH, el).shadow_root
