@@ -41,7 +41,7 @@ jobs:
 
           tags: ${{ steps.meta.outputs.tags }}, beta_${{ steps.set_version.outputs }}
 
-          annotations: ${{ steps.meta.outputs.annotations }
+          annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
           
