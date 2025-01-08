@@ -30,7 +30,8 @@ jobs:
 
       - id: set_version
         run: |
-          cat ./VERSION
+          content=`cat ./VERSION`
+          echo "::set-output name=version::$content"
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v6
@@ -39,7 +40,7 @@ jobs:
 
           push: ${{ github.event_name != 'pull_request' }}
 
-          tags: ${{ steps.meta.outputs.tags }}, beta_${{ steps.set_version.outputs }}
+          tags: ${{ steps.meta.outputs.tags }}, beta_${{ steps.set_version.outputs.version }}
 
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
