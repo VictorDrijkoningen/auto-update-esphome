@@ -2,9 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  commit:
-    branches: [ "workflow" ]
+    branches: [ "main", "workflow" ]
   merge:
     branches: [ "main" ]
   schedule:
