@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+        with:
+          fetch-depth: 2
 
       - name: Extract Docker image metadata
         id: meta
