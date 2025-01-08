@@ -33,7 +33,9 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
-          tags: [ "victordrijkoningen/auto-update-esphome:beta", ${{ steps.meta.outputs.tags }} ]
+          push: ${{ github.event_name != 'pull_request' }}
+
+          tags: victordrijkoningen/auto-update-esphome:beta, ${{ steps.meta.outputs.tags }}
 
           annotations: ${{ steps.meta.outputs.annotations }}
 
