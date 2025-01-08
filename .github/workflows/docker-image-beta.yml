@@ -38,7 +38,7 @@ jobs:
 
           push: ${{ github.event_name != 'pull_request' }}
 
-          tags: ${{ steps.meta.outputs.tags }}, beta_${{ env.version }}
+          tags: ${{ steps.meta.outputs.tags }}, victordrijkoningen/auto-update-esphome:beta_${{ env.version }}
 
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
