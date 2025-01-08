@@ -3,8 +3,6 @@ name: Docker Image CI Beta
 on:
   push:
     branches: [ "beta" ]
-  schedule:
-  - cron: "0 2 1 * *"
 
 jobs:
   build:
