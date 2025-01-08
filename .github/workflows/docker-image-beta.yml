@@ -35,7 +35,7 @@ jobs:
 
           push: ${{ github.event_name != 'pull_request' }}
 
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}, beta_${{ cat VERSION }}
 
           annotations: ${{ steps.meta.outputs.annotations }}
 
