@@ -28,6 +28,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Save state
+        run: echo "{version}={cat ./VERSION}" >> $GITHUB_STATE
+
       - name: Build and push Docker images
         uses: docker/build-push-action@v6
         with:
@@ -35,7 +38,7 @@ jobs:
 
           push: ${{ github.event_name != 'pull_request' }}
 
-          tags: victordrijkoningen/auto-update-esphome:latest, ${{ cat VERSION }}
+          tags: victordrijkoningen/auto-update-esphome:latest, victordrijkoningen/auto-update-esphome:${{ env.version }}
 
           annotations: ${{ steps.meta.outputs.annotations }}
 
