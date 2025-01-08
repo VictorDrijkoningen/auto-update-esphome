@@ -8,12 +8,18 @@ from selenium.webdriver.common.by import By
 import selenium.common.exceptions
 import schedule
 
-LOGFILE = "./app.log"
+CONFIGDIR = "/config"
+LOGFILE = "/config/app.log"
+
+def check_or_create_config_dir():
+    '''does what the name implies'''
+    if not os.path.isdir(CONFIGDIR):
+        os.mkdir(CONFIGDIR)
 
 def save_screenshot(driver, tag):
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
-        driver.save_screenshot(f"/tmp/screenshots/{datetime.date.today()}-{tag}.png")
+        driver.save_screenshot(f"{CONFIGDIR}/screenshots/{datetime.date.today()}-{tag}.png")
 
 def log_size():
     '''get log line count'''
@@ -259,6 +265,7 @@ def check_env():
 
 
 if __name__ == "__main__":
+    check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
         log(f"VERSION: {f.read()}")
 
@@ -274,4 +281,4 @@ if __name__ == "__main__":
     log("Schedule Started")
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(10)
