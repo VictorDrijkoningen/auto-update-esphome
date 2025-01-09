@@ -30,11 +30,17 @@ def log_size():
 
   
 def trim_log():
-    '''trim log file to 1000 on startup'''
-    if log_size() > 1000:
-        with open(LOGFILE, "w", encoding="utf-8") as logf:
-            d = datetime.date.today()
-            logf.write(f"trimmed on {d}")
+    '''trim log file to 250 on startup'''
+    if log_size() > 250:
+        try:
+            with open(LOGFILE, 'r') as scr, open(str(datetime.date.today())+"-"+LOGFILE, 'w') as dst:
+                for line in scr:
+                    dst.write(line)
+            with open(LOGFILE, "w", encoding="utf-8") as logf:
+                d = datetime.date.today()
+                logf.write(f"logs split on {d}")
+        except:
+            log("LOG TRIM ERROR")
 
 
 def log(message: str, timestamp=True) -> None:
