@@ -16,7 +16,7 @@ def check_or_create_config_dir():
     if not os.path.isdir(CONFIGDIR):
         os.mkdir(CONFIGDIR)
 
-def save_screenshot(driver, tag):
+def save_screenshot(driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"{CONFIGDIR}/screenshots/{datetime.date.today()}-{tag}.png")
@@ -30,11 +30,17 @@ def log_size():
 
   
 def trim_log():
-    '''trim log file to 1000 on startup'''
-    if log_size() > 1000:
-        with open(LOGFILE, "w", encoding="utf-8") as logf:
-            d = datetime.date.today()
-            logf.write(f"trimmed on {d}")
+    '''trim log file to 250 on startup'''
+    if log_size() > 250:
+        try:
+            with open(LOGFILE, 'r') as scr, open(LOGFILE+"-"+str(datetime.date.today())+".log", 'w') as dst:
+                for line in scr:
+                    dst.write(line)
+            with open(LOGFILE, "w", encoding="utf-8") as logf:
+                d = datetime.date.today()
+                logf.write(f"logs split on {d}")
+        except Exception as e:
+            log("LOG TRIM ERROR" + str(e))
 
 
 def log(message: str, timestamp=True) -> None:
@@ -265,6 +271,7 @@ def check_env():
 
 
 if __name__ == "__main__":
+    print("Auto update esphome! Questions? https://github.com/VictorDrijkoningen/auto-update-esphome")
     check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
         log(f"VERSION: {f.read()}")

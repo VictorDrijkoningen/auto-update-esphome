@@ -4,6 +4,8 @@ on:
   push:
     branches: [ "beta" ]
 
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,7 +42,7 @@ jobs:
 
           push: ${{ github.event_name != 'pull_request' }}
 
-          tags: ${{ steps.meta.outputs.tags }}, victordrijkoningen/auto-update-esphome:beta_${{env.version}}
+          tags: victordrijkoningen/auto-update-esphome:beta,   victordrijkoningen/auto-update-esphome:beta_${{env.version}}
 
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
