@@ -39,8 +39,8 @@ def trim_log():
             with open(LOGFILE, "w", encoding="utf-8") as logf:
                 d = datetime.date.today()
                 logf.write(f"logs split on {d}")
-        except:
-            log("LOG TRIM ERROR")
+        except Exception as e:
+            log("LOG TRIM ERROR" + str(e))
 
 
 def log(message: str, timestamp=True) -> None:
