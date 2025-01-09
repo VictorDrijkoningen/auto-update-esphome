@@ -16,7 +16,7 @@ def check_or_create_config_dir():
     if not os.path.isdir(CONFIGDIR):
         os.mkdir(CONFIGDIR)
 
-def save_screenshot(driver, tag):
+def save_screenshot(driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"{CONFIGDIR}/screenshots/{datetime.date.today()}-{tag}.png")
@@ -33,7 +33,7 @@ def trim_log():
     '''trim log file to 250 on startup'''
     if log_size() > 250:
         try:
-            with open(LOGFILE, 'r') as scr, open(str(datetime.date.today())+"-"+LOGFILE, 'w') as dst:
+            with open(LOGFILE, 'r') as scr, open(LOGFILE+"-"+str(datetime.date.today())+".log", 'w') as dst:
                 for line in scr:
                     dst.write(line)
             with open(LOGFILE, "w", encoding="utf-8") as logf:
