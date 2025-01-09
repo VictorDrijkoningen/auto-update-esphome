@@ -271,6 +271,7 @@ def check_env():
 
 
 if __name__ == "__main__":
+    print("Auto update esphome! Questions? https://github.com/VictorDrijkoningen/auto-update-esphome")
     check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
         log(f"VERSION: {f.read()}")
