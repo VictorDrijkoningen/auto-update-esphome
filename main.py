@@ -216,7 +216,6 @@ def check_env():
         if not os.path.isdir(DRIVERDIR):
             log("GECKODRIVER directory not found, making it...")
             os.mkdir(DRIVERDIR)
-            log()
 
             import requests
             print("downloading driver...")
@@ -231,6 +230,7 @@ def check_env():
             file = tarfile.open(DRIVERTAR)
             file.extractall(DRIVERDIR)
             file.close()
+            print("driver seems successfully downloaded")
 
     ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
