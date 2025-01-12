@@ -1,4 +1,5 @@
 import os
+import platform
 import time
 import datetime
 import re
@@ -9,6 +10,9 @@ import selenium.common.exceptions
 import schedule
 
 CONFIGDIR = "/config"
+DRIVERTAR = "/config/driver/download.tar.gz"
+DRIVERDIR = "/config/driver/"
+LINKAARCH64DRIVER = "https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux-aarch64.tar.gz"
 LOGFILE = "/config/app.log"
 
 def check_or_create_config_dir():
@@ -16,10 +20,12 @@ def check_or_create_config_dir():
     if not os.path.isdir(CONFIGDIR):
         os.mkdir(CONFIGDIR)
 
+
 def save_screenshot(driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"{CONFIGDIR}/screenshots/{datetime.date.today()}-{tag}.png")
+
 
 def log_size():
     '''get log line count'''
@@ -48,117 +54,113 @@ def log(message: str, timestamp=True) -> None:
     if timestamp:
         d = datetime.date.today()
         inp = f'{d} - {message}.'
-        print(inp)
     else:
         inp = f'{message}.'
-        print(inp)
+    
+    print(inp)
     with open(LOGFILE, "a", encoding="utf-8") as logf:
         logf.write(inp+"\n")
 
 
-def update_esphome_via_selenium(esphometarget, authentication = None):
+def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
 
     log("Starting ESPHOME Update All")
-    opts = FirefoxOptions()
-    opts.add_argument("--headless")
 
-    with webdriver.Firefox(options=opts) as driver:
+    driver.maximize_window()
+    driver.get('http://'+esphometarget)
+    time.sleep(5)
 
-        driver.maximize_window()
-        driver.get('http://'+esphometarget)
-        time.sleep(5)
+    try:
+        if not (authentication is None or authentication == [None, None] ):
+            #There is authentication needed
+            save_screenshot(driver, "1.beforeauth")
+            el = "username-field"
+            input_username = driver.find_element(By.ID , el)
+            input_username.send_keys(authentication[0])
+            el = "password-field"
+            input_username = driver.find_element(By.ID , el)
+            input_username.send_keys(authentication[1])
+            save_screenshot(driver, "2.aftertyping")
+            el = "login-form-submit"
+            input_submit = driver.find_element(By.ID, el)
+            input_submit.click()
+            save_screenshot(driver, "3.afterauth")
+
+        time.sleep(10) #wait for page-load
 
         try:
-            if not (authentication is None or authentication == [None, None] ):
-                #There is authentication needed
-                save_screenshot(driver, "1.beforeauth")
-                el = "username-field"
-                input_username = driver.find_element(By.ID , el)
-                input_username.send_keys(authentication[0])
-                el = "password-field"
-                input_username = driver.find_element(By.ID , el)
-                input_username.send_keys(authentication[1])
-                save_screenshot(driver, "2.aftertyping")
-                el = "login-form-submit"
-                input_submit = driver.find_element(By.ID, el)
-                input_submit.click()
-                save_screenshot(driver, "3.afterauth")
+            el = "login-form-submit"
+            ans_loggedin = driver.find_element(By.ID, el)
+            log("ERROR: LOGIN FAILED")
+            return 2
+        except selenium.common.exceptions.NoSuchElementException:
+            log("Successfully logged in")
 
-            time.sleep(10) #wait for page-load
+        #check if devices are up-to-date
+        el = "//esphome-devices-list"
+        devices_list = driver.find_element(By.XPATH, el).shadow_root
+        el = "esphome-configured-device-card"
+        devices = devices_list.find_elements(By.CSS_SELECTOR, el)
+        found_updateable = False
+        updateable_devices = 0
+        for device in devices:
+            card = device.shadow_root.find_element(By.CSS_SELECTOR, 'esphome-card')
+            status = card.find_elements(By.XPATH, "//div[@class='tooltip-container']")
 
-            try:
-                el = "login-form-submit"
-                ans_loggedin = driver.find_element(By.ID, el)
-                log("ERROR: LOGIN FAILED")
-                return 2
-            except selenium.common.exceptions.NoSuchElementException:
-                log("Successfully logged in")
+            if len(status) > 0:
+                found_updateable = True
+                updateable_devices += 1
 
-            #check if devices are up-to-date
-            el = "//esphome-devices-list"
-            devices_list = driver.find_element(By.XPATH, el).shadow_root
-            el = "esphome-configured-device-card"
-            devices = devices_list.find_elements(By.CSS_SELECTOR, el)
-            found_updateable = False
-            updateable_devices = 0
-            for device in devices:
-                card = device.shadow_root.find_element(By.CSS_SELECTOR, 'esphome-card')
-                status = card.find_elements(By.XPATH, "//div[@class='tooltip-container']")
+        if not found_updateable:
+            log("no updates found for devices, done updating")
+            return 1
 
-                if len(status) > 0:
-                    found_updateable = True
-                    updateable_devices += 1
-
-            if not found_updateable:
-                log("no updates found for devices, done updating")
-                return 1
-
-            log(f"Found {updateable_devices} devices that can be updated")
+        log(f"Found {updateable_devices} devices that can be updated")
 
 
-            #press first update_all button
-            el = "//esphome-header-menu"
-            button_encasing = driver.find_element(By.XPATH, el).shadow_root
-            el = "mwc-button"
-            button_encasing.find_element(By.CSS_SELECTOR, el).click()
-            save_screenshot(driver, "4.dialog")
+        #press first update_all button
+        el = "//esphome-header-menu"
+        button_encasing = driver.find_element(By.XPATH, el).shadow_root
+        el = "mwc-button"
+        button_encasing.find_element(By.CSS_SELECTOR, el).click()
+        save_screenshot(driver, "4.dialog")
 
 
-            time.sleep(2)
+        time.sleep(2)
 
-            #press second update_all button in dialog
-            el = "update-confirmation-dialog"
-            dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog").shadow_root
-            button_encasing = dialog.find_element(By.CSS_SELECTOR, "mwc-dialog")
-            button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
+        #press second update_all button in dialog
+        el = "update-confirmation-dialog"
+        dialog = driver.find_element(By.XPATH, "//esphome-confirmation-dialog").shadow_root
+        button_encasing = dialog.find_element(By.CSS_SELECTOR, "mwc-dialog")
+        button_encasing.find_element(By.XPATH, "mwc-button[2]").click()
 
-            #wait for all esp devices to be updated
-            log("waiting for update to finish")
+        #wait for all esp devices to be updated
+        log("waiting for update to finish")
 
-            #wait for summary to appear or timeout this action
-            starttime = time.time()
-            oldpage = driver.get_screenshot_as_base64()
-            while True:
-                time.sleep(10)
-                if time.time() - starttime > 1000:
-                    log("ERROR: Failed to find update dialog, update failed!")
-                    save_screenshot(driver, "5.failed")
-                    break
+        #wait for summary to appear or timeout this action
+        starttime = time.time()
+        oldpage = driver.get_screenshot_as_base64()
+        while True:
+            time.sleep(10)
+            if time.time() - starttime > 1000:
+                log("ERROR: Failed to find update dialog, update failed!")
+                save_screenshot(driver, "5.failed")
+                break
 
-                #compare page to see if nothing is changing anymore
-                newpage = driver.get_screenshot_as_base64()
-                if newpage == oldpage:
-                    log(f"end of update detected, took {round(time.time()-starttime)} seconds")
-                    save_screenshot(driver, "5.success")
-                    break
-                oldpage = newpage
+            #compare page to see if nothing is changing anymore
+            newpage = driver.get_screenshot_as_base64()
+            if newpage == oldpage:
+                log(f"end of update detected, took {round(time.time()-starttime)} seconds")
+                save_screenshot(driver, "5.success")
+                break
+            oldpage = newpage
 
-        except selenium.common.exceptions.NoSuchElementException as e:
-            log("Some elements could not be found in esphome", e)
-            log(f"element: {el}")
-            log("ERROR: ESPHOME UPDATING FAILED")
-        return 0
+    except selenium.common.exceptions.NoSuchElementException as e:
+        log("Some elements could not be found in esphome", e)
+        log(f"element: {el}")
+        log("ERROR: ESPHOME UPDATING FAILED")
+    return 0
 
 
 def update_esphome_via_socket(esphometarget, auth):
@@ -171,10 +173,20 @@ def start_update():
     '''start the update process'''
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
     if os.environ['MODE'] == 'selenium':
-        update_esphome_via_selenium(os.environ['ESPHOME_TARGET'], auth)
+        if platform.machine() == "aarch64":
+            print("running with arm64 binary")
+            opts = FirefoxOptions()
+            opts.add_argument("--headless")
+            with webdriver.Firefox(options=opts, executable_path=DRIVERDIR+"geckodriver") as driver:
+                update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
+        else:
+            opts = FirefoxOptions()
+            opts.add_argument("--headless")
+            with webdriver.Firefox(options=opts) as driver:
+                update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
+
     elif os.environ['MODE'] == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'], auth)
-
 
 
 def check_date():
@@ -195,8 +207,30 @@ def check_date():
 
     start_update()
 
+
 def check_env():
-    '''function checks the environment variables to be suitable for this code'''
+    '''check the environment variables to be suitable for this code'''
+
+    if platform.machine() == "aarch64":
+        print("arm64 detected! Checking geckodriver status")
+        if not os.path.isdir(DRIVERDIR):
+            log("GECKODRIVER directory not found, making it...")
+            os.mkdir(DRIVERDIR)
+            log()
+
+            import requests
+            print("downloading driver...")
+            response = requests.get(LINKAARCH64DRIVER)
+            response.raise_for_status()
+
+            with open(DRIVERTAR, 'wb') as file:
+                file.write(response.content)
+
+            import tarfile
+
+            file = tarfile.open(DRIVERTAR)
+            file.extractall(DRIVERDIR)
+            file.close()
 
     ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
@@ -271,7 +305,7 @@ def check_env():
 
 
 if __name__ == "__main__":
-    print("Auto update esphome! Questions? https://github.com/VictorDrijkoningen/auto-update-esphome")
+    print("Auto update esphome! \nQuestions? https://github.com/VictorDrijkoningen/auto-update-esphome")
     check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
         log(f"VERSION: {f.read()}")
