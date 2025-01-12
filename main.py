@@ -177,7 +177,8 @@ def start_update():
             print("running with arm64 binary")
             opts = FirefoxOptions()
             opts.add_argument("--headless")
-            with webdriver.Firefox(options=opts, executable_path=DRIVERDIR+"geckodriver") as driver:
+            service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
+            with webdriver.Firefox(service=service, options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
         else:
             opts = FirefoxOptions()
