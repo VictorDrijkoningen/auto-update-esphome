@@ -219,19 +219,19 @@ def check_env():
             os.mkdir(DRIVERDIR)
 
             import requests
-            print("downloading driver...")
+            log("downloading driver...")
             response = requests.get(LINKAARCH64DRIVER)
             response.raise_for_status()
 
             with open(DRIVERTAR, 'wb') as file:
                 file.write(response.content)
 
+            log("extracting driver...")
             import tarfile
-
             file = tarfile.open(DRIVERTAR)
-            file.extractall(DRIVERDIR)
+            file.extractall(DRIVERDIR, filter='data')
             file.close()
-            print("driver seems successfully downloaded")
+            log("driver seems successfully downloaded")
 
     ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     print("Auto update esphome! \nQuestions? https://github.com/VictorDrijkoningen/auto-update-esphome")
     check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
-        log(f"VERSION: {f.read()}")
+        log(f"\nVERSION: {f.read()}")
 
     trim_log()
 
