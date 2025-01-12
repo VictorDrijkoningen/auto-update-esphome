@@ -213,9 +213,9 @@ def check_env():
     '''check the environment variables to be suitable for this code'''
 
     if platform.machine() == "aarch64":
-        print("arm64 detected! Checking geckodriver status")
+        print("arm64 detected! Checking Gecko driver status")
         if not os.path.isdir(DRIVERDIR):
-            log("GECKODRIVER directory not found, making it...")
+            log("Gecko driver directory not found, making it...")
             os.mkdir(DRIVERDIR)
 
             import requests
@@ -232,6 +232,13 @@ def check_env():
             file.extractall(DRIVERDIR, filter='data')
             file.close()
             log("driver seems successfully downloaded")
+        else:
+            if os.path.exists(DRIVERDIR+"geckodriver"):
+                print("Found driver")
+            else:
+                log("ERROR: found empty driver directory")
+                exit(1)
+            
 
     ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
