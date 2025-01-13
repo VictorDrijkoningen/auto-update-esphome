@@ -219,19 +219,19 @@ def check_env():
             os.mkdir(DRIVERDIR)
 
             import requests
-            log("downloading driver...")
+            log("Downloading driver...")
             response = requests.get(LINKAARCH64DRIVER)
             response.raise_for_status()
 
             with open(DRIVERTAR, 'wb') as file:
                 file.write(response.content)
 
-            log("extracting driver...")
+            log("Extracting driver...")
             import tarfile
             file = tarfile.open(DRIVERTAR)
             file.extractall(DRIVERDIR, filter='data')
             file.close()
-            log("driver seems successfully downloaded")
+            log("Driver seems successfully downloaded")
         else:
             if os.path.exists(DRIVERDIR+"geckodriver"):
                 print("Found driver")
@@ -316,7 +316,8 @@ if __name__ == "__main__":
     print("Auto update esphome! \nQuestions? https://github.com/VictorDrijkoningen/auto-update-esphome")
     check_or_create_config_dir()
     with open('VERSION', encoding="utf-8") as f:
-        log(f"\nVERSION: {f.read()}")
+        log("\n", timestamp=False)
+        log(f"VERSION: {f.read()}")
 
     trim_log()
 

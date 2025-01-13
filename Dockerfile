@@ -14,5 +14,8 @@ RUN rm -rf /var/lib/apt/lists/*
 #install python requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
+#change cache dir for running rootless
+ENV SE_CACHE_PATH=/config/cache
+
 #start python script
 CMD ["python3", "-u", "main.py"]
