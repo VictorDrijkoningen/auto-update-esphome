@@ -88,14 +88,13 @@ def check_geckodriver(log_file: str, driver_dir: str, driver_tar: str, driver_li
             download_geckodriver(log_file, driver_dir, driver_tar, driver_link, driver_version)
         else:
             if os.path.exists(driver_dir+"geckodriver"):
-                print("Found driver")
                 with open(driver_dir+"version", "r", encoding="utf-8") as file:
                     if not file.read() == driver_version:
                         log(log_file, "Updating driver...")
                         download_geckodriver(log_file, driver_dir, driver_tar, driver_link, driver_version)
 
             else:
-                log(log_file, "ERROR: found empty driver directory")
+                log(log_file, "ERROR: could not find geckodriver in the correct place")
                 exit(1)
 
 
