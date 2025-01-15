@@ -1,6 +1,7 @@
 FROM python:slim
 WORKDIR /app
 COPY ./main.py .
+COPY ./helpers.py .
 COPY ./requirements.txt .
 COPY ./LICENSE .
 COPY ./VERSION .
