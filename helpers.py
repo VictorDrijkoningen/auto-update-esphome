@@ -2,6 +2,9 @@ import os
 import datetime
 import platform
 import re
+import requests
+import tarfile
+
 
 def save_screenshot(config_dir, driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
@@ -51,40 +54,46 @@ def log_size(log_file: str) -> int:
         return count
 
 
+def download_geckodriver(log_file: str, driver_dir: str, driver_tar: str, driver_link: str, driver_version: str) -> None:
+    '''download the geckodriver in the correct directory'''
+    log(log_file, "Downloading driver...")
+    try:
+        response = requests.get(driver_link, timeout=60)
+    except requests.exceptions.Timeout:
+        log(log_file, "Could not download driver, timed out, exiting...")
+        exit(1)
+
+    response.raise_for_status()
+
+    with open(driver_tar, 'wb') as file:
+        file.write(response.content)
+
+    log(log_file, "Extracting driver...")
+
+    with tarfile.open(driver_tar) as file:
+        file.extractall(driver_dir, filter='data')
+
+    with open(driver_dir+"version", "w", encoding="utf-8") as file:
+        file.write(driver_version)
+
+    log(log_file, "Driver seems successfully downloaded")
+
+
 def check_geckodriver(log_file: str, driver_dir: str, driver_tar: str, driver_link: str, driver_version: str) -> None:
     '''check geckodriver status and download / update if applicable'''
     if platform.machine() == "aarch64":
-        print("arm64 detected! Checking Gecko driver status")
         if not os.path.isdir(driver_dir):
             log(log_file, "Gecko driver directory not found, making it...")
             os.mkdir(driver_dir)
-
-            import requests
-            log(log_file, "Downloading driver...")
-            try:
-                response = requests.get(driver_link, timeout=60)
-            except requests.exceptions.Timeout:
-                log(log_file, "Could not download driver, timed out, exiting...")
-                exit(1)
-
-            response.raise_for_status()
-
-            with open(driver_tar, 'wb') as file:
-                file.write(response.content)
-
-            log(log_file, "Extracting driver...")
-            import tarfile
-            file = tarfile.open(driver_tar)
-            file.extractall(driver_dir, filter='data')
-            file.close()
-
-            with open(driver_dir+"version", "w", encoding="utf-8") as file:
-                file.write(driver_version)
-
-            log(log_file, "Driver seems successfully downloaded")
+            download_geckodriver(log_file, driver_dir, driver_tar, driver_link, driver_version)
         else:
             if os.path.exists(driver_dir+"geckodriver"):
                 print("Found driver")
+                with open(driver_dir+"version", "r", encoding="utf-8") as file:
+                    if not file.read() == driver_version:
+                        log(log_file, "Updating driver...")
+                        download_geckodriver(log_file, driver_dir, driver_tar, driver_link, driver_version)
+
             else:
                 log(log_file, "ERROR: found empty driver directory")
                 exit(1)

@@ -47,7 +47,7 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
         try:
             el = "login-form-submit"
             ans_loggedin = driver.find_element(By.ID, el)
-            log(LOGFILE, f"ERROR: LOGIN FAILED; {ans_loggedin}")
+            log(LOGFILE, f"ERROR: LOGIN FAILED, {ans_loggedin}, Wrong password or username?")
             return 2
         except selenium.common.exceptions.NoSuchElementException:
             log(LOGFILE, "Successfully logged in")
