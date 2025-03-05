@@ -38,7 +38,7 @@ def log(log_file: str, message: str, timestamp=True) -> None:
         d = datetime.date.today()
         inp = f'{d} - {message}'
     else:
-        inp = f'{message}.'
+        inp = f'{message}'
 
     print(inp)
     with open(log_file, "a", encoding="utf-8") as logf:
