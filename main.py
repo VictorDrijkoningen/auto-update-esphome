@@ -170,7 +170,6 @@ if __name__ == "__main__":
     trim_log(LOGFILE)
 
     with open('VERSION', encoding="utf-8") as f:
-        log(LOGFILE, "", timestamp=False)
         log(LOGFILE, f"VERSION: {f.read()}")
 
     check_env(LOGFILE)
