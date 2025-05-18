@@ -113,8 +113,7 @@ def check_env(log_file):
 
     #check IP esphome
     if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
-        log(log_file, "ERROR: esphome target not valid")
-        exit(1)
+        log(log_file, "WARN: esphome target not an ip adress, might still work")
 
     #check auth
     if not os.environ.get('PASSWORD') is None:
