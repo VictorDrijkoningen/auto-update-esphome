@@ -104,16 +104,11 @@ def check_geckodriver(log_file: str, driver_dir: str, driver_tar: str, driver_li
 
 def check_env(log_file):
     '''check the environment variables to be suitable for this code'''
-    ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
     #check MODE
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         log(log_file, f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
-
-    #check IP esphome
-    if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
-        log(log_file, "WARN: esphome target not an ip adress, might still work")
 
     #check auth
     if not os.environ.get('PASSWORD') is None:
