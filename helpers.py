@@ -16,6 +16,8 @@ def check_config_dir(config_dir: str, log_file: str) -> None:
     '''checks or creates the config dir'''
     if not os.path.isdir(config_dir):
         os.mkdir(config_dir)
+    
+    if not os.path.isfile(log_file):
         with open(log_file, "w") as f:
             f.write(f"{datetime.date.today} Initialized config directory")
 
