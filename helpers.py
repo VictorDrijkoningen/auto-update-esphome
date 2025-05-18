@@ -12,10 +12,12 @@ def save_screenshot(config_dir, driver, tag: str) -> None:
         driver.save_screenshot(f"{config_dir}screenshots/{datetime.date.today()}-{tag}.png")
 
 
-def check_config_dir(config_dir: str) -> None:
+def check_config_dir(config_dir: str, log_file: str) -> None:
     '''checks or creates the config dir'''
     if not os.path.isdir(config_dir):
         os.mkdir(config_dir)
+        with open(log_file, "w") as f:
+            f.write(f"{datetime.date.today} Initialized config directory")
 
 
 def trim_log(log_file: str) -> None:
