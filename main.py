@@ -166,7 +166,7 @@ def check_date():
 
 if __name__ == "__main__":
     print("Auto update esphome! \nQuestions? https://github.com/VictorDrijkoningen/auto-update-esphome")
-    check_config_dir(CONFIGDIR)
+    check_config_dir(CONFIGDIR, LOGFILE)
     trim_log(LOGFILE)
 
     with open('VERSION', encoding="utf-8") as f:

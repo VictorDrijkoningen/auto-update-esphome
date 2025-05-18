@@ -12,10 +12,14 @@ def save_screenshot(config_dir, driver, tag: str) -> None:
         driver.save_screenshot(f"{config_dir}screenshots/{datetime.date.today()}-{tag}.png")
 
 
-def check_config_dir(config_dir: str) -> None:
+def check_config_dir(config_dir: str, log_file: str) -> None:
     '''checks or creates the config dir'''
     if not os.path.isdir(config_dir):
         os.mkdir(config_dir)
+    
+    if not os.path.isfile(log_file):
+        with open(log_file, "w") as f:
+            f.write(f"{datetime.date.today} Initialized app.log")
 
 
 def trim_log(log_file: str) -> None:
@@ -100,16 +104,10 @@ def check_geckodriver(log_file: str, driver_dir: str, driver_tar: str, driver_li
 
 def check_env(log_file):
     '''check the environment variables to be suitable for this code'''
-    ip_regex = r'[0-9]+(?:\.[0-9]+){3}:[0-9]+' #should not exclude ipv6, but good enough for now.
 
     #check MODE
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         log(log_file, f"ERROR: unknown mode {os.environ.get('MODE')}")
-        exit(1)
-
-    #check IP esphome
-    if not re.search(ip_regex, str(os.environ.get('ESPHOME_TARGET'))):
-        log(log_file, "ERROR: esphome target not valid")
         exit(1)
 
     #check auth
