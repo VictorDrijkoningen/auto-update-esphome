@@ -19,7 +19,7 @@ def check_config_dir(config_dir: str, log_file: str) -> None:
     
     if not os.path.isfile(log_file):
         with open(log_file, "w") as f:
-            f.write(f"{datetime.date.today} Initialized config directory")
+            f.write(f"{datetime.date.today} Initialized app.log")
 
 
 def trim_log(log_file: str) -> None:
