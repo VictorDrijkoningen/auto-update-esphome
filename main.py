@@ -69,7 +69,7 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
 
         if not found_updateable:
             log(LOGFILE, "no updates found for devices, done updating")
-            # return 1
+            return 1
 
         log(LOGFILE, f"Found {updateable_devices} devices that can be updated")
 
