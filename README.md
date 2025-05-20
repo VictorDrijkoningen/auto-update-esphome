@@ -24,7 +24,7 @@ Just spin up the docker container with the correct env variables as noted beneat
 ```
 docker run -d \
   --name="auto-update-esphome" \
-  -v /path-to-data-storage:/config \
+  -v /path-to-some-storage:/config \
   -e ESPHOME_TARGET=IP:6052 \
   -e MODE=selenium \
   -e RUN_DAYS=1 \

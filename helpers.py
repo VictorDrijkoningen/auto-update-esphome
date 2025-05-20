@@ -10,7 +10,8 @@ def save_screenshot(config_dir, driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
     if os.environ.get("SCREENSHOT_LOG") == "TRUE":
         driver.save_screenshot(f"{config_dir}screenshots/{datetime.date.today()}-{tag}.png")
-
+    else:
+        print("No screenshot")
 
 def check_config_dir(config_dir: str, log_file: str) -> None:
     '''checks or creates the config dir'''
