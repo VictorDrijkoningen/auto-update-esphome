@@ -183,7 +183,7 @@ if __name__ == "__main__":
     if os.environ.get('UPDATE_ON_STARTUP') == 'TRUE':
         start_update()
 
-    schedule.every().day.at(os.environ.get("RUN_TIME")).do(check_date)
+    schedule.every().day.at(os.environ.get("RUN_TIME"), os.environ.get("TIMEZONE")).do(check_date)
     log(LOGFILE, "Schedule Started")
     while True:
         schedule.run_pending()
