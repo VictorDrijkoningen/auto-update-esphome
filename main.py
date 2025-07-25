@@ -12,8 +12,8 @@ from helpers import check_config_dir, trim_log, log, check_geckodriver, check_en
 CONFIGDIR = "/config/"
 DRIVERTAR = "/config/driver/download.tar.gz"
 DRIVERDIR = "/config/driver/"
-LINKAARCH64DRIVER = "https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux-aarch64.tar.gz"
-DRIVERVERSION="0.35.0"
+LINKAARCH64DRIVER = "https://github.com/mozilla/geckodriver/releases/download/v0.36.0/geckodriver-v0.36.0-linux-aarch64.tar.gz"
+DRIVERVERSION="0.36.0"
 LOGFILE = "/config/app.log"
 
 
