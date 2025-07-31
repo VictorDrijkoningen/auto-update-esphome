@@ -109,6 +109,10 @@ def check_env(log_file):
     '''check the environment variables to be suitable for this code'''
 
     #check MODE
+    if os.environ.get('MODE') is None:
+        log(log_file, "ERROR: MODE ENVIRONMENT VARIABLE NOT SET")
+        exit(1)
+
     if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
         log(log_file, f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
@@ -116,11 +120,11 @@ def check_env(log_file):
     #check auth
     if not os.environ.get('PASSWORD') is None:
         if os.environ.get('USERNAME') is None:
-            log(log_file, "ERROR: USERNAME EMPTY")
+            log(log_file, "ERROR: USERNAME ENVIRONMENT VARIABLE EMPTY")
             exit(1)
     if not os.environ.get('USERNAME') is None:
         if os.environ.get('PASSWORD') is None:
-            log(log_file, "ERROR: PASSWORD EMPTY")
+            log(log_file, "ERROR: PASSWORD ENVIRONMENT VARIABLE EMPTY")
             exit(1)
 
     if os.environ.get('USERNAME') is None and os.environ.get('PASSWORD') is None:
@@ -140,12 +144,12 @@ def check_env(log_file):
     run_months = os.environ.get('RUN_MONTHS')
     run_months = run_months.replace(' ', '').split(',')
     if len(run_months) == 0:
-        log(log_file, "ERROR: RUN_MONTHS env found no months")
+        log(log_file, "ERROR: NO VALUE FOUND IN RUN_MONTHS ENVIRONMENT VARIABLE")
         exit(1)
     try:
         run_months = [int(i) for i in run_months]
     except ValueError:
-        log(log_file, "ERROR: faulty value in RUN_MONTHS")
+        log(log_file, "ERROR: FAULTY VALUE IN RUN_MONTHS")
         exit(1)
 
     #check days
@@ -166,8 +170,8 @@ def check_env(log_file):
 
     #check time
     if os.environ.get("RUN_TIME") is None:
-        log(log_file, "ERROR: No RUN_TIME detected")
+        log(log_file, "ERROR: NO RUN_TIME ENVIRONMENT VARIABLE DETECTED")
         exit(1)
     if not len(os.environ.get("RUN_TIME")) == 5:
-        log(log_file, "ERROR: RUN_TIME in wrong format")
+        log(log_file, "ERROR: RUN_TIME ENVIRONMENT VARIABLE IN WRONG FORMAT")
         exit(1)

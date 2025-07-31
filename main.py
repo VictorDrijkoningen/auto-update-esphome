@@ -103,8 +103,8 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
             screenshotcount += 1
             save_screenshot(CONFIGDIR, driver, f"4.{screenshotcount}updateprocess")
 
-            if time.time() - starttime > 1000:
-                log(LOGFILE, "ERROR: Failed to find update dialog, update failed!")
+            if time.time() - starttime > 3600:
+                log(LOGFILE, "ERROR: timeout... update failed?")
                 save_screenshot(CONFIGDIR, driver, "5.failed")
                 break
 
