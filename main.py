@@ -100,9 +100,9 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
         compiletimeout = (3600 if os.environ.get("COMPILE_TIMEOUT") is None else int(os.environ.get("COMPILE_TIMEOUT")))
 
         while True:
-            time.sleep(30)
+            time.sleep(compiletimeout/60)
             screenshotcount += 1
-            save_screenshot(CONFIGDIR, driver, f"4.{screenshotcount}updateprocess")
+            save_screenshot(CONFIGDIR, driver, f"4.{screenshotcount}-{time.time() - starttime}updateprocess")
 
             if time.time() - starttime > compiletimeout:
                 log(LOGFILE, "ERROR: timeout... update failed?")
