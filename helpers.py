@@ -153,7 +153,7 @@ def check_env(log_file):
         exit(1)
 
     #check days
-    if os.environ.get('RUN_DAYS') is None or os.environ.get('RUN_DAYS') == "":
+    if os.environ.get('RUN_DAYS') is None or os.environ.get('RUN_DAYS') == "" or os.environ.get('RUN_DAYS') == " ":
         log(log_file, "No days to run found, setting to all days")
         os.environ.setdefault('RUN_DAYS', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31')
 
@@ -165,7 +165,7 @@ def check_env(log_file):
     try:
         run_days = [int(i) for i in run_days]
     except ValueError:
-        log(log_file, "ERROR: faulty value in RUN_DAYS")
+        log(log_file, f"ERROR: faulty value in RUN_DAYS [{os.environ.get("RUN_DAYS")}]")
         exit(1)
 
     #check time
