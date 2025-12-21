@@ -190,6 +190,8 @@ if __name__ == "__main__":
 
     if os.environ.get('UPDATE_ON_STARTUP').lower() == 'true':
         start_update()
+    elif os.environ.get('UPDATE_ON_STARTUP') is not None:
+        log(LOGFILE, f"UPDATE_ON_STARTUP: [{os.environ.get('UPDATE_ON_STARTUP').lower()}]")
 
     schedule.every().day.at(os.environ.get("RUN_TIME"), os.environ.get("TIMEZONE")).do(check_date)
     log(LOGFILE, "Schedule Started")
