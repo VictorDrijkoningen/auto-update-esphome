@@ -133,7 +133,7 @@ def update_esphome_via_socket(esphometarget, auth):
 def start_update():
     '''start the update process'''
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
-    if os.environ['MODE'] == 'selenium':
+    if os.environ['MODE'].lower() == 'selenium':
         if platform.machine() == "aarch64":
             log(LOGFILE, "running with arm64 binary")
             opts = FirefoxOptions()
@@ -147,8 +147,11 @@ def start_update():
             with webdriver.Firefox(options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
 
-    elif os.environ['MODE'] == 'socket':
+    elif os.environ['MODE'].lower() == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'], auth)
+    else:
+        log(LOGFILE, "ERROR MODE")
+        exit(1)
 
 
 def check_date():
