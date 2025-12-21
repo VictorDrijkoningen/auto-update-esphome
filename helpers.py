@@ -113,7 +113,7 @@ def check_env(log_file):
         log(log_file, "ERROR: MODE ENVIRONMENT VARIABLE NOT SET")
         exit(1)
 
-    if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
+    if os.environ.get('MODE').lower() != 'selenium' and os.environ.get('MODE').lower() != 'socket':
         log(log_file, f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
 
