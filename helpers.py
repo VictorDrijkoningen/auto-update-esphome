@@ -137,7 +137,7 @@ def check_env(log_file):
         log(log_file, "Logging screenshots")
 
     #check RUN_MONTHS
-    if os.environ.get('RUN_MONTHS') is None:
+    if os.environ.get('RUN_MONTHS') is None or os.environ.get('RUN_MONTHS') == "" or os.environ.get('RUN_MONTHS') == " ":
         log(log_file, "No months to run found, setting to all months")
         run_months = '1,2,3,4,5,6,7,8,9,10,11,12'
     else:
