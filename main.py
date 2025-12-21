@@ -153,18 +153,25 @@ def start_update():
 
 def check_date():
     '''check datetime and start update'''
-    run_days = os.environ.get('RUN_DAYS')
+    if os.environ.get('RUN_DAYS') is None or os.environ.get('RUN_DAYS') == "" or os.environ.get('RUN_DAYS') == " ":
+        run_days = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'
+    else:
+        run_days = os.environ.get('RUN_DAYS')
+
     run_days = run_days.replace(' ', '').split(',')
     run_days = [int(i) for i in run_days]
+    if datetime.date.today().day not in run_days:
+        return
 
-    run_months = os.environ.get('RUN_MONTHS')
+    if os.environ.get('RUN_MONTHS') is None or os.environ.get('RUN_MONTHS') == "" or os.environ.get('RUN_MONTHS') == " ":
+        run_months = '1,2,3,4,5,6,7,8,9,10,11,12'
+    else:
+        run_months = os.environ.get('RUN_MONTHS')
+
     run_months = run_months.replace(' ', '').split(',')
     run_months = [int(i) for i in run_months]
 
     if datetime.date.today().month not in run_months:
-        return
-
-    if datetime.date.today().day not in run_days:
         return
 
     start_update()
