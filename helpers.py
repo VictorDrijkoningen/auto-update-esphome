@@ -113,7 +113,7 @@ def check_env(log_file):
         log(log_file, "ERROR: MODE ENVIRONMENT VARIABLE NOT SET")
         exit(1)
 
-    if os.environ.get('MODE') != 'selenium' and os.environ.get('MODE') != 'socket':
+    if os.environ.get('MODE').lower() != 'selenium' and os.environ.get('MODE').lower() != 'socket':
         log(log_file, f"ERROR: unknown mode {os.environ.get('MODE')}")
         exit(1)
 
@@ -137,35 +137,37 @@ def check_env(log_file):
         log(log_file, "Logging screenshots")
 
     #check RUN_MONTHS
-    if os.environ.get('RUN_MONTHS') is None:
+    if os.environ.get('RUN_MONTHS') is None or os.environ.get('RUN_MONTHS') == "" or os.environ.get('RUN_MONTHS') == " ":
         log(log_file, "No months to run found, setting to all months")
-        os.environ.setdefault('RUN_MONTHS', '1,2,3,4,5,6,7,8,9,10,11,12')
+        run_months = '1,2,3,4,5,6,7,8,9,10,11,12'
+    else:
+        run_months = os.environ.get('RUN_MONTHS')
 
-    run_months = os.environ.get('RUN_MONTHS')
     run_months = run_months.replace(' ', '').split(',')
     if len(run_months) == 0:
-        log(log_file, "ERROR: NO VALUE FOUND IN RUN_MONTHS ENVIRONMENT VARIABLE")
+        log(log_file, f"ERROR: NO VALUE FOUND IN RUN_MONTHS [{os.environ.get("RUN_MONTHS")}]")
         exit(1)
     try:
         run_months = [int(i) for i in run_months]
     except ValueError:
-        log(log_file, "ERROR: FAULTY VALUE IN RUN_MONTHS")
+        log(log_file, f"ERROR: FAULTY VALUE IN RUN_MONTHS [{os.environ.get("RUN_MONTHS")}]")
         exit(1)
 
     #check days
-    if os.environ.get('RUN_DAYS') is None:
+    if os.environ.get('RUN_DAYS') is None or os.environ.get('RUN_DAYS') == "" or os.environ.get('RUN_DAYS') == " ":
         log(log_file, "No days to run found, setting to all days")
-        os.environ.setdefault('RUN_DAYS', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31')
+        run_days = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'
+    else:
+        run_days = os.environ.get('RUN_DAYS')
 
-    run_days = os.environ.get('RUN_DAYS')
     run_days = run_days.replace(' ', '').split(',')
     if len(run_days) == 0:
-        log(log_file, "ERROR: RUN_DAYS env found no days")
+        log(log_file, f"ERROR: RUN_DAYS env found no days [{os.environ.get("RUN_DAYS")}]")
         exit(1)
     try:
         run_days = [int(i) for i in run_days]
     except ValueError:
-        log(log_file, "ERROR: faulty value in RUN_DAYS")
+        log(log_file, f"ERROR: faulty value in RUN_DAYS [{os.environ.get("RUN_DAYS")}]")
         exit(1)
 
     #check time

@@ -135,7 +135,7 @@ def start_update():
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
     if os.environ['MODE'] == 'selenium':
         if platform.machine() == "aarch64":
-            print("running with arm64 binary")
+            log(LOGFILE, "running with arm64 binary")
             opts = FirefoxOptions()
             opts.add_argument("--headless")
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     check_env(LOGFILE)
     check_geckodriver(LOGFILE, DRIVERDIR, DRIVERTAR, LINKAARCH64DRIVER, DRIVERVERSION)
 
-    if os.environ.get('UPDATE_ON_STARTUP') == 'TRUE':
+    if os.environ.get('UPDATE_ON_STARTUP').lower() == 'true':
         start_update()
 
     schedule.every().day.at(os.environ.get("RUN_TIME"), os.environ.get("TIMEZONE")).do(check_date)
