@@ -135,7 +135,7 @@ def start_update():
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
     if os.environ['MODE'] == 'selenium':
         if platform.machine() == "aarch64":
-            print("running with arm64 binary")
+            log(LOGFILE, "running with arm64 binary")
             opts = FirefoxOptions()
             opts.add_argument("--headless")
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
