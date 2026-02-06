@@ -20,8 +20,6 @@ LOGFILE = "/config/app.log"
 def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
 
-    log(LOGFILE, "Starting ESPHOME Update All")
-
     driver.maximize_window()
     driver.get('http://'+esphometarget)
     time.sleep(5)
@@ -132,18 +130,28 @@ def update_esphome_via_socket(esphometarget, auth):
 
 def start_update():
     '''start the update process'''
+    log(LOGFILE, "Starting ESPHOME Update All")
+    
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
     if os.environ['MODE'].lower() == 'selenium':
         if platform.machine() == "aarch64":
             log(LOGFILE, "running with arm64 binary")
             opts = FirefoxOptions()
             opts.add_argument("--headless")
+            opts.add_argument("--disable-dev-shm-usage")
+            opts.add_argument("--width=1920")
+            opts.add_argument("--height=1080")
+            opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
             with webdriver.Firefox(service=service, options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
         else:
             opts = FirefoxOptions()
             opts.add_argument("--headless")
+            opts.add_argument("--disable-dev-shm-usage")
+            opts.add_argument("--width=1920")
+            opts.add_argument("--height=1080")
+            opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             with webdriver.Firefox(options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
 

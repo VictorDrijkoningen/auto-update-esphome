@@ -15,8 +15,16 @@ RUN rm -rf /var/lib/apt/lists/*
 #install python requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
-#change cache dir for running rootless
+
+# rootless running
+RUN mkdir -p /tmp/home /tmp/.mozilla 
+RUN chmod -R 777 /tmp
+ENV HOME=/tmp/home
 ENV SE_CACHE_PATH=/config/cache
+
+
+RUN useradd -m appuser
+USER appuser
 
 #start python script
 CMD ["python3", "-u", "main.py"]
