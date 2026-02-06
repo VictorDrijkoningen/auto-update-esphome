@@ -181,7 +181,7 @@ if __name__ == "__main__":
     check_env(LOGFILE)
     check_geckodriver(LOGFILE, DRIVERDIR, DRIVERTAR, LINKAARCH64DRIVER, DRIVERVERSION)
 
-    if os.environ.get('UPDATE_ON_STARTUP') == 'TRUE':
+    if os.environ.get('UPDATE_ON_STARTUP').lower() == 'true':
         start_update()
 
     schedule.every().day.at(os.environ.get("RUN_TIME"), os.environ.get("TIMEZONE")).do(check_date)
