@@ -20,8 +20,6 @@ LOGFILE = "/config/app.log"
 def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
 
-    log(LOGFILE, "Starting ESPHOME Update All")
-
     driver.maximize_window()
     driver.get('http://'+esphometarget)
     time.sleep(5)
@@ -132,6 +130,8 @@ def update_esphome_via_socket(esphometarget, auth):
 
 def start_update():
     '''start the update process'''
+    log(LOGFILE, "Starting ESPHOME Update All")
+    
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
     if os.environ['MODE'] == 'selenium':
         if platform.machine() == "aarch64":
