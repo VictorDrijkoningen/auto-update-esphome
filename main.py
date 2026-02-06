@@ -141,7 +141,6 @@ def start_update():
             opts.add_argument("--disable-dev-shm-usage")
             opts.add_argument("--width=1920")
             opts.add_argument("--height=1080")
-            opts.add_argument("-profile")
             opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
             with webdriver.Firefox(service=service, options=opts) as driver:
@@ -152,7 +151,6 @@ def start_update():
             opts.add_argument("--disable-dev-shm-usage")
             opts.add_argument("--width=1920")
             opts.add_argument("--height=1080")
-            opts.add_argument("-profile")
             opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             with webdriver.Firefox(options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
