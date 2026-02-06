@@ -138,12 +138,17 @@ def start_update():
             print("running with arm64 binary")
             opts = FirefoxOptions()
             opts.add_argument("--headless")
+            opts.add_argument("--disable-dev-shm-usage")
+            opts.add_argument("--width=1920")
+            opts.add_argument("--height=1080")
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
             with webdriver.Firefox(service=service, options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
         else:
             opts = FirefoxOptions()
             opts.add_argument("--headless")
+            opts.add_argument("--width=1920")
+            opts.add_argument("--height=1080")
             with webdriver.Firefox(options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
 
