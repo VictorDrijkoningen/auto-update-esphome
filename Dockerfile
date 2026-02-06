@@ -16,16 +16,15 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-RUN useradd -m appuser
-USER appuser
-
-# Create writable dirs for ANY uid
+# rootless running
 RUN mkdir -p /tmp/home /tmp/.mozilla 
 RUN chmod -R 777 /tmp
 ENV HOME=/tmp/home
-
-#change cache dir for running rootless
 ENV SE_CACHE_PATH=/config/cache
+
+
+RUN useradd -m appuser
+USER appuser
 
 #start python script
 CMD ["python3", "-u", "main.py"]
