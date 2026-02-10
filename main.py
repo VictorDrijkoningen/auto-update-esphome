@@ -96,6 +96,7 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
         oldpage = driver.get_screenshot_as_base64()
         screenshotcount = 0
         compiletimeout = (3600 if os.environ.get("COMPILE_TIMEOUT") is None else int(os.environ.get("COMPILE_TIMEOUT")))
+        devices_names_list = []
 
         while True:
             time.sleep(compiletimeout/60)
@@ -106,6 +107,24 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
                 log(LOGFILE, "ERROR: timeout... update failed?")
                 save_screenshot(CONFIGDIR, driver, "5.failed")
                 break
+
+            # read the logs to pinpoint which device is updating
+            try:
+                logs_dialog = driver.find_element(By.XPATH, "//esphome-update-all-dialog").shadow_root
+                hidden1 = logs_dialog.find_element(By.CSS_SELECTOR, "esphome-process-dialog").shadow_root
+                hidden2 = hidden1.find_element(By.CSS_SELECTOR, "mwc-dialog")
+                hidden3 = hidden2.find_element(By.CSS_SELECTOR, "esphome-remote-process").shadow_root
+                logs_lines = hidden3.find_elements(By.CLASS_NAME, "line")
+
+                for thing in logs_lines:
+                    line = thing.get_attribute("innerHTML")
+                    if "Processing" in line:
+                        device_name = line.replace('<span>Processing </span><span class="log-fg-cyan">', "").replace("</span><span>\n</span>", "")
+                        if device_name not in devices_names_list:
+                            devices_names_list.append(device_name)
+                            log(LOGFILE, f"Processing {device_name}")
+            except:
+                pass
 
             #compare page to see if nothing is changing anymore
             newpage = driver.get_screenshot_as_base64()
