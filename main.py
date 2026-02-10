@@ -133,7 +133,7 @@ def start_update():
     log(LOGFILE, "Starting ESPHOME Update All")
     
     auth = [os.environ.get('USERNAME'), os.environ.get('PASSWORD')]
-    if os.environ['MODE'].lower() == 'selenium':
+    if os.environ.get('MODE') is not None and os.environ.get('MODE').lower() == 'selenium':
         if platform.machine() == "aarch64":
             log(LOGFILE, "running with arm64 binary")
             opts = FirefoxOptions()
@@ -155,7 +155,7 @@ def start_update():
             with webdriver.Firefox(options=opts) as driver:
                 update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
 
-    elif os.environ['MODE'].lower() == 'socket':
+    elif os.environ.get('MODE') is not None and os.environ.get('MODE').lower() == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'], auth)
     else:
         log(LOGFILE, "ERROR MODE")
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     check_env(LOGFILE)
     check_geckodriver(LOGFILE, DRIVERDIR, DRIVERTAR, LINKAARCH64DRIVER, DRIVERVERSION)
 
-    if os.environ.get('UPDATE_ON_STARTUP').lower() == 'true':
+    if os.environ.get('UPDATE_ON_STARTUP') is not None and os.environ.get('UPDATE_ON_STARTUP').lower() == 'true':
         start_update()
     elif os.environ.get('UPDATE_ON_STARTUP') is not None:
         log(LOGFILE, f"UPDATE_ON_STARTUP: [{os.environ.get('UPDATE_ON_STARTUP').lower()}]")

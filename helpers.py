@@ -8,7 +8,7 @@ import tarfile
 
 def save_screenshot(config_dir, driver, tag: str) -> None:
     '''if the development env var is set, then store the screenshot'''
-    if os.environ.get("SCREENSHOT_LOG").lower() == "true":
+    if os.environ.get("SCREENSHOT_LOG") is not None and os.environ.get("SCREENSHOT_LOG").lower() == "true":
         driver.save_screenshot(f"{config_dir}screenshots/{datetime.date.today()}-{tag}.png")
 
 def check_config_dir(config_dir: str, log_file: str) -> None:
@@ -16,7 +16,7 @@ def check_config_dir(config_dir: str, log_file: str) -> None:
     if not os.path.isdir(config_dir):
         os.mkdir(config_dir)
 
-    if os.environ.get("SCREENSHOT_LOG").lower() == "true":
+    if os.environ.get("SCREENSHOT_LOG") is not None and os.environ.get("SCREENSHOT_LOG").lower() == "true":
         if not os.path.isdir(f"{config_dir}screenshots/"):
             os.mkdir(f"{config_dir}screenshots/")
     
@@ -133,7 +133,7 @@ def check_env(log_file):
         log(log_file, "Credentials found, rolling with credentials")
 
     #check logging
-    if os.environ.get("SCREENSHOT_LOG").lower() == "true":
+    if os.environ.get("SCREENSHOT_LOG") is not None and os.environ.get("SCREENSHOT_LOG").lower() == "true":
         log(log_file, "Logging screenshots")
 
     #check RUN_MONTHS
