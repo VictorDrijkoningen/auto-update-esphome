@@ -23,6 +23,7 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     driver.maximize_window()
     driver.get('http://'+esphometarget)
     time.sleep(5)
+    log(LOGFILE, "Loaded target website")
 
     try:
         if not (authentication is None or authentication == [None, None] ):
@@ -97,16 +98,14 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
         screenshotcount = 0
         compiletimeout = (3600 if os.environ.get("COMPILE_TIMEOUT") is None else int(os.environ.get("COMPILE_TIMEOUT")))
         devices_names_list = []
+        error_devices_names_list = []
+        success_devices_names_list = []
+
 
         while True:
             time.sleep(compiletimeout/60)
             screenshotcount += 1
             save_screenshot(CONFIGDIR, driver, f"4.{screenshotcount}-{time.time() - starttime}updateprocess")
-
-            if time.time() - starttime > compiletimeout:
-                log(LOGFILE, "ERROR: timeout... update failed?")
-                save_screenshot(CONFIGDIR, driver, "5.failed")
-                break
 
             # read the logs to pinpoint which device is updating
             try:
@@ -116,15 +115,32 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
                 hidden3 = hidden2.find_element(By.CSS_SELECTOR, "esphome-remote-process").shadow_root
                 logs_lines = hidden3.find_elements(By.CLASS_NAME, "line")
 
-                for thing in logs_lines:
-                    line = thing.get_attribute("innerHTML")
-                    if "Processing" in line:
-                        device_name = line.replace('<span>Processing </span><span class="log-fg-cyan">', "").replace("</span><span>\n</span>", "")
+                for line_container in logs_lines:
+                    line = line_container.get_attribute("innerHTML")
+                    if "Processing" in line and ".yaml" in line:
+                        device_name = line.split(">")[3].replace("</span", "")
                         if device_name not in devices_names_list:
                             devices_names_list.append(device_name)
                             log(LOGFILE, f"Processing {device_name}")
+                    elif "ERROR" in line:
+                        for device in devices_names_list:
+                            if device in line and device not in error_devices_names_list:
+                                error_devices_names_list.append(device)
+                                log(LOGFILE, f"{device_name} FAILED update")
+                    elif "SUCCESS" in line:
+                        for device in devices_names_list:
+                            if device in line and device not in success_devices_names_list:
+                                success_devices_names_list.append(device)
+                                log(LOGFILE, f"{device_name} successfully updated")
+
             except:
                 pass
+
+            # stop on timeout
+            if time.time() - starttime > compiletimeout:
+                log(LOGFILE, "ERROR: timeout... update failed?")
+                save_screenshot(CONFIGDIR, driver, "5.failed")
+                break
 
             #compare page to see if nothing is changing anymore
             newpage = driver.get_screenshot_as_base64()
@@ -213,7 +229,7 @@ if __name__ == "__main__":
     trim_log(LOGFILE)
 
     with open('VERSION', encoding="utf-8") as f:
-        log(LOGFILE, f"VERSION: {f.read()}")
+        log(LOGFILE, f"VERSION: {f.read().replace("\n", "")}")
 
     check_env(LOGFILE)
     check_geckodriver(LOGFILE, DRIVERDIR, DRIVERTAR, LINKAARCH64DRIVER, DRIVERVERSION)
