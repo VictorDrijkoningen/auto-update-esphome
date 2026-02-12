@@ -1,20 +1,22 @@
 FROM python:slim
-WORKDIR /app
-COPY ./main.py .
-COPY ./helpers.py .
-COPY ./requirements.txt .
-COPY ./LICENSE .
-COPY ./VERSION .
 
-
-#install firefox for headless use firefox:
+# install firefox for headless use firefox:
 RUN apt-get update
 RUN apt-get install -y firefox-esr
 RUN rm -rf /var/lib/apt/lists/*
 
-#install python requirements
+# add files
+WORKDIR /app
+COPY ./requirements.txt .
+
+# install python requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
+# add remaining files later (later for caching purposes) 
+COPY ./main.py .
+COPY ./helpers.py .
+COPY ./LICENSE .
+COPY ./VERSION .
 
 # rootless running
 RUN mkdir -p /tmp/home /tmp/.mozilla 
@@ -26,5 +28,5 @@ ENV SE_CACHE_PATH=/config/cache
 RUN useradd -m appuser
 USER appuser
 
-#start python script
+# start python script
 CMD ["python3", "-u", "main.py"]
