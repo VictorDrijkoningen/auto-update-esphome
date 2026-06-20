@@ -1,6 +1,9 @@
 # auto-update-esphome
 Auto update esphome devices.
 
+# !NEW ESPHOME DASHBOARD!
+This repo works with the 'old' dashboard <2026.6 for esphome. An update will follow soon with a setting for the new dashboard.
+
 # How to use this container:
 Just spin up the docker container with the correct env variables as noted beneath:
 
