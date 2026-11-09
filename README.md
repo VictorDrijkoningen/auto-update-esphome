@@ -2,7 +2,7 @@
 Auto update esphome devices.
 
 # !NEW ESPHOME DASHBOARD!
-This repo works with the 'old' dashboard <2026.6 for esphome. An update will follow soon with a setting for the new dashboard.
+This repo works with the new and old (<2026.6) dashboard. It assumes a relatively updated esphome setup or use LEGACY_ESPHOME for the old dashboard.
 
 # How to use this container:
 Just spin up the docker container with the correct env variables as noted beneath:
@@ -23,6 +23,7 @@ Just spin up the docker container with the correct env variables as noted beneat
 | COMPILE_TIMEOUT | ex: '3600' | ✔ | timeout in seconds that the software waits for the updating process to take (defaults to 3600) |
 | UPDATE_ON_STARTUP | TRUE | ✔ | when TRUE, runs the update cycle on startup of the docker container |
 | SCREENSHOT_LOG | TRUE | ✔ | this enables the screenshot logging for debugging |
+| LEGACY_ESPHOME | TRUE | ✔ | esphome < 2026.6 |
 
 # Sample docker run
 
