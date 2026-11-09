@@ -17,8 +17,11 @@ DRIVERVERSION="0.36.0"
 LOGFILE = "/config/app.log"
 
 
+# Old dashboard:
 def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     '''update esphome devices via a selenium operated firefox instance'''
+
+    log(LOGFILE, "Running the legacy dashboard!")
 
     driver.maximize_window()
     driver.get('http://'+esphometarget)
@@ -157,10 +160,156 @@ def update_esphome_via_selenium(driver, esphometarget, authentication = None):
     return 0
 
 
+# New dashboard
+def update_esphome_via_selenium_new_dashboard(driver, esphometarget, authentication = None):
+    '''update esphome devices (new dashboard) via a selenium operated firefox instance'''
+
+    log(LOGFILE, "Running the new dashboard! THIS IS EXPERIMENTAL!")
+
+    try:
+        driver.maximize_window()
+        driver.get('http://'+esphometarget)
+        time.sleep(5)
+        log(LOGFILE, "Loaded target website")
+    except Exception as e:
+        log(LOGFILE, f"Could not load esphome instance {e}")
+
+    try:
+        # Authentication flow
+        if not (authentication is None or authentication == [None, None] ):
+            #There is authentication needed
+            save_screenshot(CONFIGDIR, driver, "1.beforeauth")
+            el = "//esphome-app"
+            _ = driver.find_element(By.XPATH, el).shadow_root
+            el = "esphome-login"
+            new_root = _.find_element(By.CSS_SELECTOR, el).shadow_root
+
+            el = "login-username"
+            input_username = new_root.find_element(By.ID , el)
+            input_username.send_keys(authentication[0])
+            el = "login-password"
+            input_username = new_root.find_element(By.ID , el)
+            input_username.send_keys(authentication[1])
+            save_screenshot(CONFIGDIR, driver, "2.aftertyping")
+            el = "button[type='submit']"
+            input_submit = new_root.find_element(By.CSS_SELECTOR, el)
+
+            input_submit.click()
+            save_screenshot(CONFIGDIR, driver, "3.afterauth")
+
+        time.sleep(10) #wait for page-load
+
+        try:
+            el = "//esphome-app"
+            _ = driver.find_element(By.XPATH, el).shadow_root
+            el = "esphome-login"
+            new_root = _.find_element(By.CSS_SELECTOR, el).shadow_root
+
+            el = "login-username"
+            ans_loggedin = new_root.find_element(By.ID, el)
+            log(LOGFILE, f"ERROR: LOGIN FAILED, {ans_loggedin}, Wrong password or username?")
+            return 2
+        except selenium.common.exceptions.NoSuchElementException:
+            log(LOGFILE, "Successfully logged in")
+
+        #check if devices are up-to-date
+        # TODO check what devices have updates available
+
+
+        #press select all
+        el = "//esphome-app"
+        select_all_root = driver.find_element(By.XPATH, el).shadow_root
+        el = "esphome-page-dashboard"
+        select_all_root = select_all_root.find_element(By.CSS_SELECTOR, el).shadow_root
+        el = ".select-toggle-btn"
+        select_all_root.find_element(By.CSS_SELECTOR, el).click()
+        el = "esphome-select-bar"
+        select_bar = select_all_root.find_element(By.CSS_SELECTOR, el).shadow_root
+        el= "button.toggle"
+        select_bar.find_element(By.CSS_SELECTOR, el).click()
+
+        save_screenshot(CONFIGDIR, driver, "4. selected all devices")
+
+        #press update all
+        el="button.btn.btn--primary.update-split__main"
+        select_bar.find_element(By.CSS_SELECTOR, el).click()
+        save_screenshot(CONFIGDIR, driver, "5. updating all devices")
+
+
+        #wait for all esp devices to be updated
+        log(LOGFILE, "waiting for update to finish")
+
+        #wait for summary to appear or timeout this action
+        starttime = time.time()
+        oldpage = driver.get_screenshot_as_base64()
+        screenshotcount = 0
+        compiletimeout = (3600 if os.environ.get("COMPILE_TIMEOUT") is None else int(os.environ.get("COMPILE_TIMEOUT")))
+        devices_names_list = []
+        error_devices_names_list = []
+        success_devices_names_list = []
+
+
+        while True:
+            time.sleep(compiletimeout/60)
+            screenshotcount += 1
+            save_screenshot(CONFIGDIR, driver, f"6.{screenshotcount}-{round(time.time() - starttime, 3)}updateprocess")
+
+            # read the logs to pinpoint which device is updating
+            try:
+                logs_dialog = driver.find_element(By.XPATH, "//esphome-update-all-dialog").shadow_root
+                hidden1 = logs_dialog.find_element(By.CSS_SELECTOR, "esphome-process-dialog").shadow_root
+                hidden2 = hidden1.find_element(By.CSS_SELECTOR, "mwc-dialog")
+                hidden3 = hidden2.find_element(By.CSS_SELECTOR, "esphome-remote-process").shadow_root
+                logs_lines = hidden3.find_elements(By.CLASS_NAME, "line")
+
+                for line_container in logs_lines:
+                    line = line_container.get_attribute("innerHTML")
+                    if "Processing" in line and ".yaml" in line:
+                        device_name = line.split(">")[3].replace("</span", "")
+                        if device_name not in devices_names_list:
+                            devices_names_list.append(device_name)
+                            log(LOGFILE, f"Processing {device_name}")
+                    elif "ERROR" in line:
+                        for device in devices_names_list:
+                            if device in line and device not in error_devices_names_list:
+                                error_devices_names_list.append(device)
+                                log(LOGFILE, f"{device_name} FAILED update")
+                    elif "SUCCESS" in line:
+                        for device in devices_names_list:
+                            if device in line and device not in success_devices_names_list:
+                                success_devices_names_list.append(device)
+                                log(LOGFILE, f"{device_name} successfully updated")
+
+            except:
+                pass
+
+            # stop on timeout
+            if time.time() - starttime > compiletimeout:
+                log(LOGFILE, "ERROR: timeout... update failed?")
+                save_screenshot(CONFIGDIR, driver, "7.failed")
+                break
+
+            #compare page to see if nothing is changing anymore
+            newpage = driver.get_screenshot_as_base64()
+            if newpage == oldpage:
+                log(LOGFILE, f"end of update detected, took {round(time.time()-starttime)} seconds")
+                save_screenshot(CONFIGDIR, driver, "7.success")
+                break
+            oldpage = newpage
+
+    except selenium.common.exceptions.NoSuchElementException as e:
+        log(LOGFILE, f"Some elements could not be found in esphome {e}")
+        log(LOGFILE, f"element: {el}")
+        log(LOGFILE, "ERROR: ESPHOME UPDATING FAILED")
+    return 0
+
+
+
 def update_esphome_via_socket(esphometarget, auth):
     '''Update esphome devices via a socket call'''
     log(LOGFILE, "TODO socket call implementation")
     exit(1)
+
 
 
 def start_update():
@@ -179,7 +328,10 @@ def start_update():
             opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             service = webdriver.FirefoxService(executable_path=DRIVERDIR+"geckodriver")
             with webdriver.Firefox(service=service, options=opts) as driver:
-                update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
+                if os.environ.get('LEGACY_ESPHOME') is None:
+                    update_esphome_via_selenium_new_dashboard(driver, os.environ['ESPHOME_TARGET'], auth)
+                else:
+                    update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
         else:
             opts = FirefoxOptions()
             opts.add_argument("--headless")
@@ -188,7 +340,10 @@ def start_update():
             opts.add_argument("--height=1080")
             opts.add_argument(os.path.join(os.environ["HOME"], "firefox-profile"))
             with webdriver.Firefox(options=opts) as driver:
-                update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
+                if os.environ.get('LEGACY_ESPHOME') is None:
+                    update_esphome_via_selenium_new_dashboard(driver, os.environ['ESPHOME_TARGET'], auth)
+                else:
+                    update_esphome_via_selenium(driver, os.environ['ESPHOME_TARGET'], auth)
 
     elif os.environ.get('MODE') is not None and os.environ.get('MODE').lower() == 'socket':
         update_esphome_via_socket(os.environ['ESPHOME_TARGET'], auth)
